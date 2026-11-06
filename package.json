@@ -15,7 +15,8 @@
     "format:check": "prettier --check .",
     "seed:sheets": "tsx scripts/generate-sample-sheets.ts",
     "check": "npm run lint && npm run typecheck && npm run test && npm run build && npm run e2e",
-    "prepare": "husky"
+    "prepare": "husky",
+    "seed:report": "tsx scripts/seed-report.ts"
   },
   "dependencies": {
     "@hookform/resolvers": "^7.0.3",
@@ -38,6 +39,7 @@
     "react-hook-form": "^7.91.0",
     "react-leaflet": "^5.0.0",
     "recharts": "^3.10.1",
+    "server-only": "^0.0.1",
     "shadcn": "^4.23.0",
     "sonner": "^2.0.8",
     "tailwind-merge": "^3.7.0",

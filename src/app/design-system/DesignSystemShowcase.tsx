@@ -497,7 +497,7 @@ export function DesignSystemShowcase() {
           title="Charts"
           description="Recharts, one axis, thin marks, validated colour-blind-safe palette, and a table view on every chart."
         >
-          <div className="grid gap-4 lg:grid-cols-2">
+          <div className="grid grid-cols-1 gap-4 lg:grid-cols-2 [&>*]:min-w-0">
             <TrendLine
               title="12-week attendance trend"
               description="Average attendance by week"

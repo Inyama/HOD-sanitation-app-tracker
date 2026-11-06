@@ -29,6 +29,7 @@ Other rules:
 | `npm run e2e`         | Playwright (builds must exist: run `npm run build` first; serves on port 3100) |
 | `npm run check`       | All of the above in order                                                      |
 | `npm run seed:sheets` | Regenerate the sample CSV and XLSX sheets in `src/data/sample-sheets`          |
+| `npm run seed:report` | Print a summary of the deterministic seed (counts, demo account targets)       |
 
 Husky pre-commit runs lint-staged (Prettier), lint, typecheck and unit tests.
 
@@ -43,17 +44,23 @@ src/components/layout/    AppShell, Sidebar, BottomNav, TopBar, RoleBadge, DemoR
 src/components/attendance StatusChip (CheckInPanel, HistoryTable later)
 src/lib/time/             clock (simulated now), zone helpers, meeting schedule
 src/lib/attendance/       status, geofence, percentage, aggregation, badges, excuses
-src/lib/matching/         normalize, similarity, matchSheet
-src/lib/notifications/    schedule (dueNotifications), templates
+src/lib/matching/         normalize, similarity, columns, parse (CSV/XLSX), matchSheet, upload
+src/lib/notifications/    schedule (dueNotifications), templates, audience
 src/lib/auth/             permissions matrix
 src/lib/repo/             types, interfaces, json-mock implementation
-src/lib/demo/             simulate-time and simulate-location presets
+src/lib/demo/             simulate-time and simulate-location presets, /dev/data summary
+src/lib/validation/       Zod schemas
 src/data/seed/            deterministic generators (mulberry32, seed 20261106)
 src/data/sample-sheets/   downloadable CSV/XLSX with deliberate errors
 src/styles/tokens.css     design tokens (spec 3.2)
 src/tests/unit, e2e       Vitest and Playwright
 docs/                     DECISIONS.md, reference-screenshots/
 ```
+
+## Review pages (until the real screens exist)
+
+- `/design-system` and `/design-system/shell`: tokens, components and the app frames.
+- `/dev/data`: seed totals, demo accounts and the rules at a simulated time (`GET /api/v1/demo/summary?at=`).
 
 ## Demo facts
 
