@@ -116,3 +116,51 @@ The Auditor holds no write capability (tested). Volunteers get Marshal tools onl
 ### Privacy
 
 Final wording of the privacy notice and consent text must be confirmed by qualified counsel (Nigeria Data Protection Act 2023, plus GDPR for members abroad).
+
+## Phase 2: public pages and authentication
+
+### How sign-in works (mock phases)
+
+- **Session:** a signed (HMAC-SHA256) HTTP-only, same-site cookie `hod_session` holding the user id, role, admin level, titles, issue time, expiry and last activity. Members and volunteers: 30 days. Admins: ended after 8 hours without activity (the proxy slides the activity stamp at most every 5 minutes). "Remember this device" makes the cookie persistent; otherwise it is a browser-session cookie with the same server-side expiry. Phase 8 replaces this with Auth.js behind the same helpers.
+- **Two layers of protection.** `src/proxy.ts` (Next 16's renamed middleware) does fast checks from the cookie alone: signed out, expired or idle sends you to `/login?next=…&tab=…`, and a wrong area (for example a member opening `/admin`) sends you to `/forbidden`. Every page then calls `requirePage(path)`, which reloads the person from the repository and applies the full permission matrix, including titles and admin levels. Hiding navigation is only a convenience.
+- **Forbidden page:** a redirect to `/forbidden?path=…`, because `forbidden()` is still experimental in Next 16.
+- **Login tabs** must match the account: the Admin tab is for admins only (then a two-factor code), admins cannot use the Member or Volunteer tabs, and the Volunteer tab is for volunteers. Each case gets a specific message.
+- **Error messages** are specific but safe: an unknown email and a wrong password give the same message. Pending, unverified, suspended and rejected states are revealed only after the correct password.
+- **Lockout:** 5 failed attempts within 15 minutes lock that email for 15 minutes from the fifth failure. This also applies to emails that do not exist, so lockout cannot be used to discover accounts. Wrong two-factor codes count as failures too.
+- **Rate limits** per IP address (in memory): sign-in 30 per minute, sign-up and resend 10 per 10 minutes, forgot password 10 per 10 minutes, two-factor 10 per 10 minutes.
+- **Rejected applicants** are stored as `REMOVED` with a `statusReason` starting "Rejected", because the schema has no Rejected status. They see a polite message with a contact link.
+- **New-device email:** a long-lived `hod_device` cookie identifies the browser. A sign-in from a device not yet seen for that account sends a "New sign-in" email. Known devices are held in memory for now.
+- **Passwords** are hashed with scrypt (node:crypto) in the mock phases; Phase 8 moves to Argon2 and can rehash on next sign-in. Seeded demo accounts use a `demo-plain:` marker that is accepted only in demo mode.
+- **Two-factor (TOTP):** implemented with node:crypto per RFC 6238 (tested against the RFC vectors), so `otplib` is not needed. In demo mode any six digits are accepted, as the spec says.
+- **Signing secret:** `AUTH_SECRET` (32+ characters). A built-in fallback is used only in demo mode or development; production without demo mode refuses to sign.
+
+### Sign-up, verification and recovery
+
+- **Sign-up does not reveal registered emails.** If the email already has an account, the response is the same and that address gets a "you already have an account" email instead.
+- Sign-up stores country, city, preferred language, unit code and both consents (with timestamps). The time zone is guessed from the country and can be changed later in Settings. Volunteers also give zones of interest, availability and notes (`User.signupDetails`).
+- Both consents are required, because Saturday attendance depends on check-in location and meeting reminders cannot be turned off.
+- Only English is selectable; French, Spanish and Yoruba are listed as "coming soon".
+- **Email verification** links are signed tokens valid for 48 hours. **Password reset** links last 1 hour and stop working once the password changes, because they embed a fingerprint of the current password hash.
+- **Admin invitations** are stored as SHA-256 hashes of the token. The demo invite `/accept-invite/demo-invite-2026` (Communications Officer) is seeded with an expiry far in the future so the demo keeps working; `/accept-invite/demo-invite-expired` shows the expired state. Real invitations last 7 days.
+- `User` gained `emailVerifiedAt` and `signupDetails`; one seeded pending volunteer has not verified their email.
+
+### Email in demo mode
+
+- Emails go through an `EmailSender` interface. The console sender logs one line (recipient domain only) and keeps the full message in an in-memory outbox at `/dev/outbox`, where the links can be opened. Phase 8 adds the Resend sender.
+- The branded HTML layout (navy header, logo on a white pill, gold button, footer with address and settings link) lives in `src/lib/notifications/email-layout.ts` and will be reused by the Automation screen's email preview.
+
+### Public pages
+
+- The landing countdown fetches the public schedule (`GET /api/v1/meetings?upcoming=true`, which returns only schedule fields) and picks the next meeting with the browser's simulated demo clock.
+- The map uses Leaflet with OpenStreetMap tiles and a custom gold pin, loaded only in the browser. The address is always printed beside it, and "Get directions" opens Google Maps.
+- Protected areas show working placeholders for screens built in later phases. Each placeholder runs the same permission guard, so access rules can already be tested.
+- In demo mode, server-rendered screens use the demo date (Friday 6 November 2026 at the current Lagos time). Session expiry and lockouts always use real time.
+
+### Next.js 16 notes
+
+- Code that reads the session calls `connection()` after `cookies()`. Without it, Partial Prefetching pre-renders protected pages with cookies but forbids clock reads, which logged errors on prefetch.
+- React Compiler lint rejects react-hook-form's `watch()`, so forms use `useWatch()`.
+
+### Testing
+
+- Playwright runs with one worker, because every spec talks to the same in-memory demo server and the auth flows change its state. `POST /api/v1/demo/reset` (demo only) restores the seed before the auth spec.

@@ -389,7 +389,11 @@ export function DataExplorer() {
                   </ul>
                 )}
                 <h4 className="mt-5 mb-2 text-sm font-semibold">Reminder plan, next 7 days</h4>
-                <ul className="max-h-64 space-y-1 overflow-auto pr-1 text-sm">
+                <ul
+                  tabIndex={0}
+                  aria-label="Reminder plan for the next 7 days"
+                  className="max-h-64 space-y-1 overflow-auto pr-1 text-sm"
+                >
                   {s.weekPlan.map((p, i) => (
                     <li key={i} className="flex justify-between gap-3 border-b border-border/60 py-1">
                       <span>{typeLabel[p.type] ?? p.type}</span>

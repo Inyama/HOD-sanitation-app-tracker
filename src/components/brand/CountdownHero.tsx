@@ -39,19 +39,6 @@ export function CountdownHero({
   eyebrow = "Next meeting",
   className,
 }: CountdownHeroProps) {
-  const now = useNow(1000);
-  const start = DateTime.fromISO(startsAt, { zone: "utc" });
-  const remaining = now ? start.toMillis() - now.toMillis() : null;
-  const p = remaining === null ? null : parts(remaining);
-  const started = remaining !== null && remaining <= 0;
-
-  const units = [
-    { label: "Days", value: p?.days },
-    { label: "Hours", value: p?.hours },
-    { label: "Minutes", value: p?.minutes },
-    { label: "Seconds", value: p?.seconds },
-  ];
-
   return (
     <GradientBackdrop variant="hero" className={cn("rounded-(--radius-xl) text-white shadow-lift", className)}>
       <div className="grid gap-6 p-6 sm:p-8 lg:grid-cols-[1fr_auto] lg:items-center">
@@ -76,35 +63,55 @@ export function CountdownHero({
           )}
         </div>
 
-        <div>
-          <p className="sr-only" aria-live="off">
-            {started
-              ? "The meeting has started."
-              : p
-                ? `Starts in ${p.days} days, ${p.hours} hours and ${p.minutes} minutes.`
-                : ""}
-          </p>
-          {started ? (
-            <p className="rounded-(--radius-md) border border-white/20 bg-white/10 px-5 py-4 text-center font-heading text-xl font-semibold">
-              Happening now
-            </p>
-          ) : (
-            <ol aria-hidden className="grid grid-cols-4 gap-2 sm:gap-3">
-              {units.map((u) => (
-                <li
-                  key={u.label}
-                  className="bg-grad-glass flex min-w-16 flex-col items-center rounded-(--radius-md) border border-white/15 px-2 py-3 backdrop-blur-md sm:min-w-20"
-                >
-                  <span className="tabular font-heading text-2xl font-semibold sm:text-[2rem]">
-                    {u.value === undefined ? "--" : String(u.value).padStart(2, "0")}
-                  </span>
-                  <span className="text-[0.6875rem] tracking-wide text-white/75 uppercase">{u.label}</span>
-                </li>
-              ))}
-            </ol>
-          )}
-        </div>
+        <CountdownTiles startsAt={startsAt} />
       </div>
     </GradientBackdrop>
+  );
+}
+
+/** Live days/hours/minutes/seconds tiles for a start time, driven by the simulated clock. */
+export function CountdownTiles({ startsAt, className }: { startsAt: string; className?: string }) {
+  const now = useNow(1000);
+  const start = DateTime.fromISO(startsAt, { zone: "utc" });
+  const remaining = now ? start.toMillis() - now.toMillis() : null;
+  const p = remaining === null ? null : parts(remaining);
+  const started = remaining !== null && remaining <= 0;
+  const units = [
+    { label: "Days", value: p?.days },
+    { label: "Hours", value: p?.hours },
+    { label: "Minutes", value: p?.minutes },
+    { label: "Seconds", value: p?.seconds },
+  ];
+  return (
+    <div className={className}>
+      <p className="sr-only">
+        {started
+          ? "The meeting has started."
+          : p
+            ? `Starts in ${p.days} days, ${p.hours} hours and ${p.minutes} minutes.`
+            : ""}
+      </p>
+      {started ? (
+        <p className="rounded-(--radius-md) border border-white/20 bg-white/10 px-5 py-4 text-center font-heading text-xl font-semibold">
+          Happening now
+        </p>
+      ) : (
+        <ol aria-hidden className="grid grid-cols-4 gap-2 sm:gap-3">
+          {units.map((u) => (
+            <li
+              key={u.label}
+              className="bg-grad-glass flex min-w-0 flex-col items-center rounded-(--radius-md) border border-white/15 px-2 py-3 backdrop-blur-md sm:min-w-20"
+            >
+              <span className="tabular font-heading text-2xl font-semibold sm:text-[2rem]">
+                {u.value === undefined ? "--" : String(u.value).padStart(2, "0")}
+              </span>
+              <span className="text-[0.625rem] tracking-wide text-white/75 uppercase sm:text-[0.6875rem]">
+                {u.label}
+              </span>
+            </li>
+          ))}
+        </ol>
+      )}
+    </div>
   );
 }

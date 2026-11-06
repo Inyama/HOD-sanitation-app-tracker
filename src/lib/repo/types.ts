@@ -86,6 +86,19 @@ export interface User {
   /** Added: consent records (spec 12). */
   consentLocationAt: string | null;
   consentRemindersAt: string | null;
+  /** Added: email verification (spec 4.3). */
+  emailVerifiedAt: string | null;
+  /** Added: extra details captured at sign-up. */
+  signupDetails: SignupDetails | null;
+}
+
+export interface SignupDetails {
+  unitCode: string | null;
+  /** Volunteers: zones they would like to serve in. */
+  zones?: string[];
+  /** Volunteers: when they are usually available. */
+  availability?: string[];
+  notes?: string | null;
 }
 
 export interface UserTitle {

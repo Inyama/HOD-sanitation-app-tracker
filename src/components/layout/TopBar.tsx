@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { Bell, LogOut, Search, Settings, UserRound } from "lucide-react";
 import { Logo } from "@/components/brand/Logo";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
@@ -33,6 +34,12 @@ interface TopBarProps {
 }
 
 export function TopBar({ role, user, unread = 0, dateRange, settingsHref }: TopBarProps) {
+  const router = useRouter();
+  const signOut = async () => {
+    await fetch("/api/v1/auth/logout", { method: "POST" }).catch(() => undefined);
+    router.replace("/login?reason=signed-out");
+    router.refresh();
+  };
   const home = ROLE_META[role].home;
   const notificationsHref =
     role === "admin" ? "/admin/automation" : `${home === "/volunteer" ? "/member" : home}/notifications`;
@@ -107,10 +114,8 @@ export function TopBar({ role, user, unread = 0, dateRange, settingsHref }: TopB
                 <ThemeToggle />
               </div>
               <DropdownMenuSeparator />
-              <DropdownMenuItem asChild>
-                <Link href="/login">
-                  <LogOut aria-hidden /> Sign out
-                </Link>
+              <DropdownMenuItem onSelect={signOut}>
+                <LogOut aria-hidden /> Sign out
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>

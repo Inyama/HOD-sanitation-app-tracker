@@ -145,7 +145,13 @@ export function DataTable<T>({
       ) : (
         <>
           {/* Table view, 640px and up */}
-          <div className="hidden overflow-auto sm:block" style={{ maxHeight }}>
+          <div
+            tabIndex={0}
+            role="region"
+            aria-label={`${caption} (scrollable)`}
+            className="hidden overflow-auto sm:block"
+            style={{ maxHeight }}
+          >
             <table className="w-full border-separate border-spacing-0 text-sm">
               <caption className="sr-only">{caption}</caption>
               <thead>

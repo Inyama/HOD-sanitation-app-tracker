@@ -72,7 +72,13 @@ export function ChartFrame<Row extends Record<string, unknown>>({
         </ul>
       )}
       {asTable ? (
-        <div className="overflow-auto" style={{ maxHeight: height + 24 }}>
+        <div
+          tabIndex={0}
+          role="region"
+          aria-label={`${title} table`}
+          className="overflow-auto"
+          style={{ maxHeight: height + 24 }}
+        >
           <table className="w-full text-sm">
             <caption className="sr-only">{title}</caption>
             <thead>

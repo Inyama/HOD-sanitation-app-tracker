@@ -114,8 +114,10 @@ test.describe("app shell", () => {
   });
 });
 
-test("home links to the review pages", async ({ page }) => {
+test("the landing footer links to the build-preview pages in demo mode", async ({ page }) => {
   await page.goto("/");
-  await expect(page.getByRole("link", { name: /Design system/ }).first()).toBeVisible();
+  const footer = page.getByRole("contentinfo");
+  for (const name of ["design system", "demo data", "email outbox"])
+    await expect(footer.getByRole("link", { name })).toBeVisible();
   expect(await seriousViolations(page)).toEqual([]);
 });

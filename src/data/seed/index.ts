@@ -340,6 +340,10 @@ export function buildSeed(): SeedData {
           : null,
       consentLocationAt: iso(created),
       consentRemindersAt: iso(created),
+      // One pending volunteer has not confirmed their email yet.
+      emailVerifiedAt: d.cohort === "pending" && d.role === "VOLUNTEER" ? null : iso(created.plus({ minutes: 20 })),
+      signupDetails:
+        d.cohort === "pending" ? { unitCode: null, notes: "Heard about the unit at the newcomers' lunch." } : null,
     };
   });
   const userById = new Map(users.map((u) => [u.id, u]));
@@ -1171,13 +1175,23 @@ export function buildSeed(): SeedData {
   }));
 
   // ---- Invites ------------------------------------------------------------------------
+  // Invite links: /accept-invite/demo-invite-2026 (valid) and /accept-invite/demo-invite-expired.
+  // Only SHA-256 hashes of the tokens are stored.
   const invites: Invite[] = [
     {
       id: "inv-1",
       email: "new.comms@example.com",
       adminLevel: "COMMS_OFFICER",
-      tokenHash: "demo-token-hash-inv-1",
-      expiresAt: iso(lagosTime(2026, 11, 10, 12, 0)),
+      tokenHash: "294c351780c6e3e9172d24d95178ce9f66882c8a3dc6daea0962cb112a823c0a",
+      expiresAt: "2099-12-31T23:00:00.000Z",
+      usedAt: null,
+    },
+    {
+      id: "inv-2",
+      email: "late.admin@example.com",
+      adminLevel: "AUDITOR",
+      tokenHash: "04e49e5902d66a8a27228a6b11ee7f3177853922176bcad184c329bf4df64c58",
+      expiresAt: iso(lagosTime(2026, 10, 30, 12, 0)),
       usedAt: null,
     },
   ];
