@@ -90,6 +90,8 @@ export interface User {
   emailVerifiedAt: string | null;
   /** Added: extra details captured at sign-up. */
   signupDetails: SignupDetails | null;
+  /** Added: when the person asked for their account to be deleted (spec 12). */
+  deletionRequestedAt: string | null;
 }
 
 export interface SignupDetails {
@@ -237,6 +239,8 @@ export interface Message {
   channels: Channel[];
   scheduledFor: string | null;
   sentAt: string | null;
+  /** Added: files attached to the message. */
+  attachments?: { name: string; url: string; size: string }[];
 }
 
 export type AudienceSpec =

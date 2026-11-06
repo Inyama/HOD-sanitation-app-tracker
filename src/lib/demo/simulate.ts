@@ -1,4 +1,6 @@
+import type { DateTime } from "luxon";
 import { offsetCoordinate } from "@/lib/attendance/geofence";
+import { MEETING_ZONE } from "@/lib/time/zone";
 
 /** Demo helpers (spec 10.5): Simulate time and Simulate location presets. Demo mode only. */
 
@@ -6,24 +8,36 @@ export interface TimePreset {
   id: string;
   label: string;
   description: string;
-  /** UTC ISO instant (Lagos is UTC+1 all year). Literal strings keep this module free of clock reads. */
+  /** UTC ISO instant. */
   at: string;
 }
 
-export const TIME_PRESETS: TimePreset[] = [
-  {
-    id: "fri-now",
-    label: "Fri 6 Nov, 10:00",
-    description: "Demo today, before the weekend",
-    at: "2026-11-06T09:00:00.000Z",
-  },
-  { id: "sat-0825", label: "Sat 08:25", description: "Window not open yet", at: "2026-11-07T07:25:00.000Z" },
-  { id: "sat-0920", label: "Sat 09:20", description: "Window open, On time", at: "2026-11-07T08:20:00.000Z" },
-  { id: "sat-0931", label: "Sat 09:31", description: "Window open, counts as Late", at: "2026-11-07T08:31:00.000Z" },
-  { id: "sat-1120", label: "Sat 11:20", description: "Ten minutes before close", at: "2026-11-07T10:20:00.000Z" },
-  { id: "thu-1930", label: "Thu 19:30", description: "One hour before prayer", at: "2026-11-12T18:30:00.000Z" },
-  { id: "thu-2031", label: "Thu 20:31", description: "Prayer under way", at: "2026-11-12T19:31:00.000Z" },
-];
+/**
+ * Simulate-time presets (spec 10.5) for the coming Saturday and Thursday meetings, worked out
+ * from the real date: the current Saturday until its window closes at 11:30, and the current
+ * Thursday until 21:00.
+ */
+export function timePresets(realNow: DateTime): TimePreset[] {
+  const lagos = realNow.setZone(MEETING_ZONE);
+  const upcoming = (weekday: number, endHour: number, endMinute: number) => {
+    let d = lagos.startOf("day");
+    while (d.weekday !== weekday || lagos > d.set({ hour: endHour, minute: endMinute })) d = d.plus({ days: 1 });
+    return d;
+  };
+  const sat = upcoming(6, 11, 30);
+  const thu = upcoming(4, 21, 0);
+  const at = (day: DateTime, h: number, m: number) => day.set({ hour: h, minute: m }).toUTC().toISO()!;
+  const satLabel = sat.toFormat("ccc d LLL");
+  const thuLabel = thu.toFormat("ccc d LLL");
+  return [
+    { id: "sat-0825", label: "Sat 08:25", description: `${satLabel}: window not open yet`, at: at(sat, 8, 25) },
+    { id: "sat-0920", label: "Sat 09:20", description: `${satLabel}: open, On time`, at: at(sat, 9, 20) },
+    { id: "sat-0931", label: "Sat 09:31", description: `${satLabel}: open, counts as Late`, at: at(sat, 9, 31) },
+    { id: "sat-1120", label: "Sat 11:20", description: `${satLabel}: ten minutes before close`, at: at(sat, 11, 20) },
+    { id: "thu-1930", label: "Thu 19:30", description: `${thuLabel}: one hour before prayer`, at: at(thu, 19, 30) },
+    { id: "thu-2031", label: "Thu 20:31", description: `${thuLabel}: prayer under way`, at: at(thu, 20, 31) },
+  ];
+}
 
 export type LocationPresetId = "AT_VENUE" | "FAR_AWAY" | "POOR_ACCURACY" | "GPS_UNAVAILABLE";
 

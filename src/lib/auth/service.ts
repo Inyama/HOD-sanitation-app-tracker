@@ -347,6 +347,7 @@ export async function signUp(repo: Repository, body: SignupBody, ctx: RequestCon
     consentLocationAt: now,
     consentRemindersAt: now,
     emailVerifiedAt: null,
+    deletionRequestedAt: null,
     signupDetails: {
       unitCode: body.unitCode || null,
       zones: body.role === "VOLUNTEER" ? (body.zones ?? []) : undefined,
@@ -537,6 +538,7 @@ export async function acceptInvite(
     consentLocationAt: now,
     consentRemindersAt: now,
     emailVerifiedAt: now,
+    deletionRequestedAt: null,
     signupDetails: null,
   });
   await repo.invites.update(found.invite.id, { usedAt: now });

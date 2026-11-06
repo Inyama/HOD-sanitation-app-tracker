@@ -65,6 +65,15 @@ describe("which meetings count", () => {
     expect(attendancePercent(c)).toBe(100);
   });
 
+  it("counts an early check-in before the meeting starts, but nothing else in the future", () => {
+    const r = [
+      ...rec(["ON_TIME"]),
+      { meetingId: "m8", status: "ON_TIME" as const },
+      { meetingId: "m9", status: "ABSENT" as const },
+    ];
+    expect(countedMeetings(r, meetings, { approvedAt: yearAgo, now }).map((x) => x.meeting.id)).toEqual(["m0", "m8"]);
+  });
+
   it("does not count a held meeting that has no record yet (pending sheet)", () => {
     const r = rec(["ON_TIME", null, "ON_TIME"]);
     expect(countedMeetings(r, meetings, { approvedAt: yearAgo, now }).map((x) => x.meeting.id)).toEqual(["m0", "m2"]);

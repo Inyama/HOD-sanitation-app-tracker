@@ -28,7 +28,8 @@ import { RoleBadge } from "@/components/layout/RoleBadge";
 import { UserAvatar } from "@/components/ui/user-avatar";
 import { useNow } from "@/hooks/use-now";
 import { resetClock, simulateTime } from "@/lib/time/clock";
-import { TIME_PRESETS } from "@/lib/demo/simulate";
+import { timePresets } from "@/lib/demo/simulate";
+import { DateTime } from "luxon";
 import type { DemoSummary } from "@/lib/demo/summary";
 import { cn } from "@/lib/utils";
 
@@ -73,6 +74,7 @@ async function fetchSummary(at: string): Promise<DemoSummary> {
 export function DataExplorer() {
   const now = useNow(1000);
   const [activePreset, setActivePreset] = React.useState<string | null>(null);
+  const [presets] = React.useState(() => timePresets(DateTime.now()));
   // Re-query once per simulated minute.
   const minute = now ? now.startOf("minute").toISO()! : null;
   const query = useQuery({
@@ -223,7 +225,7 @@ export function DataExplorer() {
             </Button>
           </div>
           <div role="group" aria-label="Time presets" className="flex flex-wrap gap-2">
-            {TIME_PRESETS.map((p) => (
+            {presets.map((p) => (
               <button
                 key={p.id}
                 type="button"

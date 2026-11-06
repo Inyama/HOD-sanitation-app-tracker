@@ -217,6 +217,7 @@ export function buildSeed(): SeedData {
     closeAfterMin: 0,
     status: "SCHEDULED",
     recurrenceRule: null,
+    statusNote: "Rescheduled from Monday 16 November",
   });
   const deepClean = lagosTime(2026, 11, 28, 7, 30);
   addMeeting({
@@ -342,6 +343,7 @@ export function buildSeed(): SeedData {
       consentRemindersAt: iso(created),
       // One pending volunteer has not confirmed their email yet.
       emailVerifiedAt: d.cohort === "pending" && d.role === "VOLUNTEER" ? null : iso(created.plus({ minutes: 20 })),
+      deletionRequestedAt: null,
       signupDetails:
         d.cohort === "pending" ? { unitCode: null, notes: "Heard about the unit at the newcomers' lunch." } : null,
     };
@@ -644,7 +646,7 @@ export function buildSeed(): SeedData {
       userId: r.userId,
       meetingId: r.meetingId,
       reason: reasons[i],
-      proofUrl: i % 2 === 0 ? `/uploads/proof-${i + 1}.pdf` : null,
+      proofUrl: i % 2 === 0 ? "/files/sample-proof.pdf" : null,
       status: "APPROVED",
       reviewedById: i % 2 ? demo.funke : demo.esther,
       reviewNote: "Thank you for letting us know. Get well soon.",
@@ -679,7 +681,7 @@ export function buildSeed(): SeedData {
     userId: demo.chioma,
     meetingId: chiomaOct31.meetingId,
     reason: "My mother was admitted to hospital on Friday night and I stayed with her.",
-    proofUrl: "/uploads/proof-chioma.jpg",
+    proofUrl: "/files/sample-proof.pdf",
     status: "PENDING",
     reviewedById: null,
     reviewNote: null,
@@ -902,6 +904,7 @@ export function buildSeed(): SeedData {
       channels: ["IN_APP", "EMAIL"],
       scheduledFor: null,
       sentAt: iso(lagosTime(2026, 11, 2, 9, 5)),
+      attachments: [{ name: "deep-clean-checklist.pdf", url: "/files/deep-clean-checklist.pdf", size: "2 KB" }],
     },
     {
       senderId: demo.grace,

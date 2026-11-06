@@ -23,7 +23,12 @@ export async function AreaGate({ area, children }: { area: ShellRole; children: 
     ? ADMIN_LEVEL_LABELS[user.adminLevel]
     : titles.map((t) => TITLE_LABELS[t]).join(", ") || undefined;
   return (
-    <AppShell role={area} user={{ name: user.name, email: user.email, detail }} unread={unread} hiddenNav={hiddenNav}>
+    <AppShell
+      role={area}
+      user={{ name: user.name, email: user.email, detail, avatarUrl: user.avatarUrl }}
+      unread={unread}
+      hiddenNav={hiddenNav}
+    >
       {children}
     </AppShell>
   );

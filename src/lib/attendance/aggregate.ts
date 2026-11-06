@@ -16,6 +16,7 @@ import {
  * Which meetings count, and how records become Counts (spec 6.3 rules).
  *
  * - Only meetings that have been held (start time not in the future) and are not cancelled.
+ *   An early check-in (On time, before the start) counts straight away.
  * - Only meetings on or after the person's approvedAt.
  * - A held meeting with no record yet (e.g. a Thursday sheet not uploaded) is pending and not counted.
  *   Absent records are written when a meeting closes (see docs/DECISIONS.md).
@@ -60,11 +61,12 @@ export function countedMeetings(
     if (m.status === "CANCELLED") continue;
     if (opts.type && m.type !== opts.type) continue;
     const start = DateTime.fromISO(m.startsAt, { zone: "utc" });
-    if (start > opts.now) continue;
+    const status = byMeeting.get(m.id);
+    // A meeting that has not started yet counts only once the person has checked in early.
+    if (start > opts.now && status !== "ON_TIME") continue;
     if (start < approved) continue;
     if (opts.from && start < opts.from) continue;
     if (opts.to && start > opts.to) continue;
-    const status = byMeeting.get(m.id);
     if (!status) continue;
     out.push({ meeting: m, status });
   }

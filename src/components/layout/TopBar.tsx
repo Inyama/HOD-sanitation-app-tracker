@@ -22,6 +22,7 @@ export interface ShellUser {
   email: string;
   /** e.g. "Super Admin" or "Team Lead". */
   detail?: string;
+  avatarUrl?: string | null;
 }
 
 interface TopBarProps {
@@ -87,7 +88,7 @@ export function TopBar({ role, user, unread = 0, dateRange, settingsHref }: TopB
           <DropdownMenu>
             <DropdownMenuTrigger className="inline-flex cursor-pointer items-center gap-2 rounded-full p-0.5 pr-0.5 hover:bg-muted sm:pr-3">
               <span className="sr-only">Account menu: </span>
-              <UserAvatar name={user.name} size={38} />
+              <UserAvatar name={user.name} size={38} src={user.avatarUrl} />
               <span className="sr-only text-left leading-tight lg:not-sr-only lg:block">
                 <span className="block text-sm font-semibold">{user.name}</span>
                 <span className="block text-xs text-muted-foreground">{user.detail ?? ROLE_META[role].label}</span>

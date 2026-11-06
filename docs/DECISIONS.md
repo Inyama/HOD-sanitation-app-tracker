@@ -164,3 +164,15 @@ Final wording of the privacy notice and consent text must be confirmed by qualif
 ### Testing
 
 - Playwright runs with one worker, because every spec talks to the same in-memory demo server and the auth flows change its state. `POST /api/v1/demo/reset` (demo only) restores the seed before the auth spec.
+
+## Phase 3: member area
+
+- **Simulate time reaches the server (demo mode only).** The browser saves the simulated clock in the `hod_clock` cookie (`ClockSync`), and the server's `serverNow()` / `nowForRequest()` honour it, so check-in windows match what the screen shows. Outside demo mode the cookie is ignored (spec 6.2).
+- **Time presets** are worked out from the real date: the coming Saturday (until its window closes) and Thursday.
+- **Early check-ins count straight away:** a meeting that has not started counts once the person has checked in On time, so the percentage updates on success.
+- **Weekly meetings not yet stored** are created in the repository on first use (check-in, excuse, RSVP, calendar file).
+- **Remote members** skip Saturday check-in; their check-in page offers the next in-person event instead.
+- **Uploads** (excuse proofs, profile photos) are checked by file signature, limited to 2 MB, and kept in memory until Phase 8 storage. Seeded proofs point to `public/files/sample-proof.pdf`.
+- **PDF statements** use @react-pdf with the logo as PNG bytes (WebP is not supported).
+- **Account deletion requests** set `User.deletionRequestedAt` (new field) and are logged; an admin confirms them in Phase 5.
+- **Messages** gained an optional `attachments` list; the Deep Clean message carries `public/files/deep-clean-checklist.pdf`.

@@ -83,7 +83,7 @@ export function Outbox() {
             }
           />
         ) : (
-          <div className="grid gap-4 lg:grid-cols-[minmax(0,22rem)_minmax(0,1fr)]">
+          <div className="grid grid-cols-1 gap-4 lg:grid-cols-[minmax(0,22rem)_minmax(0,1fr)]">
             <ul
               aria-label="Emails"
               className="divide-y divide-border overflow-hidden rounded-(--radius-lg) border border-border bg-card"

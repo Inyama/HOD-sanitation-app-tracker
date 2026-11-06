@@ -22,7 +22,7 @@ export default async function VolunteerHome() {
     r.meetings.list(),
     r.serviceHours.list({ where: { userId: user.id } }),
   ]);
-  const views = attendanceViews(records, meetings, { approvedAt: user.approvedAt, now: serverNow() });
+  const views = attendanceViews(records, meetings, { approvedAt: user.approvedAt, now: await serverNow() });
   const verified = hours.filter((h) => h.source === "AUTO" || h.verifiedById).reduce((s, h) => s + h.hours, 0);
 
   return (

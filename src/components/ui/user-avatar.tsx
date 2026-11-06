@@ -27,7 +27,30 @@ function hash(s: string): number {
 }
 
 /** Dummy avatars are initials on gradient circles; never photos of real members (spec 3.4). */
-export function UserAvatar({ name, size = 40, className }: { name: string; size?: number; className?: string }) {
+export function UserAvatar({
+  name,
+  size = 40,
+  className,
+  src,
+}: {
+  name: string;
+  size?: number;
+  className?: string;
+  src?: string | null;
+}) {
+  if (src) {
+    return (
+      // eslint-disable-next-line @next/next/no-img-element -- user-uploaded photo served by our API
+      <img
+        src={src}
+        alt=""
+        width={size}
+        height={size}
+        className={cn("shrink-0 rounded-full object-cover ring-2 ring-surface", className)}
+        style={{ width: size, height: size }}
+      />
+    );
+  }
   const bg = gradients[hash(name) % gradients.length];
   const light = bg.includes("#f5d27a");
   return (

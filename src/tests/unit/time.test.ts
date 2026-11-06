@@ -1,6 +1,16 @@
 import { describe, expect, it, vi } from "vitest";
 import { DateTime } from "luxon";
-import { clockMode, freezeTime, now, resetClock, simulateTime, subscribeClock } from "@/lib/time/clock";
+import {
+  clockMode,
+  decodeClockState,
+  encodeClockState,
+  freezeTime,
+  now,
+  nowFromState,
+  resetClock,
+  simulateTime,
+  subscribeClock,
+} from "@/lib/time/clock";
 import { formatForViewer, formatShort, lagosTime } from "@/lib/time/zone";
 import {
   nextMeeting,
@@ -11,7 +21,7 @@ import {
   SATURDAY_RULE,
   THURSDAY_RULE,
 } from "@/lib/time/schedule";
-import { TIME_PRESETS } from "@/lib/demo/simulate";
+import { timePresets } from "@/lib/demo/simulate";
 
 describe("simulated clock", () => {
   it("freezes, simulates and resets, notifying subscribers", () => {
@@ -34,17 +44,30 @@ describe("simulated clock", () => {
     expect(Math.abs(now().toMillis() - Date.now())).toBeLessThan(1000);
   });
 
-  it("keeps the demo time presets on Lagos wall-clock times", () => {
-    const expected = [
-      lagosTime(2026, 11, 6, 10, 0),
-      lagosTime(2026, 11, 7, 8, 25),
-      lagosTime(2026, 11, 7, 9, 20),
-      lagosTime(2026, 11, 7, 9, 31),
-      lagosTime(2026, 11, 7, 11, 20),
-      lagosTime(2026, 11, 12, 19, 30),
-      lagosTime(2026, 11, 12, 20, 31),
-    ].map((d) => d.toISO());
-    expect(TIME_PRESETS.map((p) => p.at)).toEqual(expected);
+  it("points the time presets at the coming Saturday and Thursday", () => {
+    const fmt = (iso: string) => DateTime.fromISO(iso).setZone("Africa/Lagos").toFormat("ccc d LLL HH:mm");
+    // Friday 6 November 2026, 10:00 Lagos
+    const fri = timePresets(lagosTime(2026, 11, 6, 10, 0)).map((p) => fmt(p.at));
+    expect(fri).toEqual([
+      "Sat 7 Nov 08:25",
+      "Sat 7 Nov 09:20",
+      "Sat 7 Nov 09:31",
+      "Sat 7 Nov 11:20",
+      "Thu 12 Nov 19:30",
+      "Thu 12 Nov 20:31",
+    ]);
+    // Saturday 7 November at 11:00 is still "this Saturday"; at 11:31 it moves to the next one.
+    expect(fmt(timePresets(lagosTime(2026, 11, 7, 11, 0))[0].at)).toBe("Sat 7 Nov 08:25");
+    expect(fmt(timePresets(lagosTime(2026, 11, 7, 11, 31))[0].at)).toBe("Sat 14 Nov 08:25");
+  });
+
+  it("encodes and decodes the demo clock cookie, rejecting junk", () => {
+    const st = { kind: "simulated" as const, anchorMs: 1_000, realAnchorMs: 500 };
+    expect(decodeClockState(encodeClockState(st))).toEqual(st);
+    expect(nowFromState(st, 800)).toBe(1_300);
+    expect(decodeClockState("%7B%22kind%22%3A%22simulated%22%7D")).toBeNull();
+    expect(decodeClockState("not-json")).toBeNull();
+    expect(decodeClockState(undefined)).toBeNull();
   });
 });
 
