@@ -1,5 +1,5 @@
 import { DateTime } from "luxon";
-import { lagosTime, MEETING_ZONE, toUtc, type DateInput } from "./zone";
+import { MEETING_ZONE, toUtc, type DateInput } from "./zone";
 
 /**
  * The single source of "now" for the whole app (spec section 5).
@@ -70,20 +70,4 @@ export function subscribeClock(listener: () => void): () => void {
 
 function emit() {
   for (const l of listeners) l();
-}
-
-/**
- * The demo world is built around Friday 6 November 2026 (spec section 0).
- * Demo mode starts the clock on that date at the current Lagos time of day,
- * so countdowns tick naturally whatever day the demo is opened.
- */
-export const DEMO_TODAY = { year: 2026, month: 11, day: 6 } as const;
-
-export function demoStartInstant(realNow: DateTime = DateTime.fromMillis(realMs(), { zone: "utc" })): DateTime {
-  const lagos = realNow.setZone(MEETING_ZONE);
-  return lagosTime(DEMO_TODAY.year, DEMO_TODAY.month, DEMO_TODAY.day, lagos.hour, lagos.minute, lagos.second);
-}
-
-export function startDemoClock(): void {
-  simulateTime(demoStartInstant());
 }

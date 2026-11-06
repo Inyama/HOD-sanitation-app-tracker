@@ -50,7 +50,8 @@ import {
 } from "@/components/ui/dialog";
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { attendancePercent, onTimeRate, band } from "@/lib/attendance/percentage";
-import { lagosTime } from "@/lib/time/zone";
+import { nextOccurrences, SATURDAY_RULE } from "@/lib/time/schedule";
+import { now } from "@/lib/time/clock";
 import { sampleHeatCells, trendData, teamData, monthlyStatus, samplePeople, type SamplePerson } from "./sample-data";
 
 const swatches: { group: string; items: { name: string; var: string; text?: string }[] }[] = [
@@ -146,7 +147,7 @@ const toc = [
 
 export function DesignSystemShowcase() {
   const worked = { onTime: 14, late: 3, absent: 2, excused: 1 };
-  const nextSaturday = lagosTime(2026, 11, 7, 9, 30).toISO()!;
+  const [nextSaturday] = React.useState(() => nextOccurrences(SATURDAY_RULE, now(), 1)[0].toISO()!);
   const [tableState, setTableState] = React.useState<"ready" | "loading" | "empty" | "error">("ready");
   const [formError, setFormError] = React.useState(true);
 
@@ -467,7 +468,7 @@ export function DesignSystemShowcase() {
         <Section
           id="countdown"
           title="Countdown hero"
-          description="Live countdown driven by the simulated clock (demo time is Friday 6 November 2026)."
+          description="Live countdown to the next Saturday meeting, driven by the app clock."
         >
           <CountdownHero
             meetingName="Saturday Sanitation Meeting"

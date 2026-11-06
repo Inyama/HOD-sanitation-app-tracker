@@ -1,12 +1,10 @@
 import type { DateTime } from "luxon";
-import { isDemoMode } from "@/lib/env";
-import { demoStartInstant, now } from "./clock";
+import { now } from "./clock";
 
 /**
- * "Now" for server-rendered screens. In demo mode the world is anchored on Friday
- * 6 November 2026 (same rule as the browser's demo clock); otherwise the real time.
- * Security decisions (session expiry, lockouts) always use real time.
+ * "Now" for server-rendered screens: the real time, same as the browser's default clock.
+ * (Demo "Simulate time" only moves the browser clock; Phase 3 passes it to the server for check-in.)
  */
 export function serverNow(): DateTime {
-  return isDemoMode() ? demoStartInstant(now()) : now();
+  return now();
 }

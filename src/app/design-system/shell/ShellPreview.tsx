@@ -12,7 +12,8 @@ import { AttendanceRing } from "@/components/charts/AttendanceRing";
 import { KpiCard } from "@/components/charts/KpiCard";
 import { StatusChip } from "@/components/attendance/StatusChip";
 import { CountdownHero } from "@/components/brand/CountdownHero";
-import { lagosTime } from "@/lib/time/zone";
+import { nextOccurrences, SATURDAY_RULE } from "@/lib/time/schedule";
+import { now } from "@/lib/time/clock";
 
 const users = {
   member: { name: "Adebayo Johnson", email: "member@hod-demo.example.com" },
@@ -22,6 +23,7 @@ const users = {
 
 export function ShellPreview() {
   const [role, setRole] = React.useState<ShellRole>("member");
+  const [nextSaturday] = React.useState(() => nextOccurrences(SATURDAY_RULE, now(), 1)[0].toISO()!);
 
   return (
     <AppShell
@@ -83,7 +85,7 @@ export function ShellPreview() {
         <div className="grid gap-4 lg:grid-cols-[2fr_1fr]">
           <CountdownHero
             meetingName="Saturday Sanitation Meeting"
-            startsAt={lagosTime(2026, 11, 7, 9, 30).toISO()!}
+            startsAt={nextSaturday}
             venue="7 Surulere Industrial Road, Off Adeniyi Jones, Ikeja, Lagos"
             action={
               <Button variant="gold" size="lg" disabled>

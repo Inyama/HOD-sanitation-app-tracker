@@ -1,17 +1,10 @@
 import { describe, expect, it, vi } from "vitest";
 import { DateTime } from "luxon";
-import {
-  clockMode,
-  demoStartInstant,
-  freezeTime,
-  now,
-  resetClock,
-  simulateTime,
-  subscribeClock,
-} from "@/lib/time/clock";
+import { clockMode, freezeTime, now, resetClock, simulateTime, subscribeClock } from "@/lib/time/clock";
 import { formatForViewer, formatShort, lagosTime } from "@/lib/time/zone";
 import {
   nextMeeting,
+  withRecurringMeetings,
   nextOccurrences,
   occurrences,
   previousOccurrences,
@@ -36,9 +29,9 @@ describe("simulated clock", () => {
     off();
   });
 
-  it("starts the demo on Friday 6 November 2026 at the current Lagos time of day", () => {
-    const d = demoStartInstant(DateTime.fromISO("2027-03-15T13:45:10Z")).setZone("Africa/Lagos");
-    expect(d.toFormat("yyyy-LL-dd HH:mm:ss")).toBe("2026-11-06 14:45:10");
+  it("uses the real time by default (no fixed demo date)", () => {
+    expect(clockMode()).toBe("real");
+    expect(Math.abs(now().toMillis() - Date.now())).toBeLessThan(1000);
   });
 
   it("keeps the demo time presets on Lagos wall-clock times", () => {
@@ -92,5 +85,43 @@ describe("meeting schedule", () => {
     ];
     expect(nextMeeting(ms, lagosTime(2026, 11, 7, 11, 0))?.id).toBe("a");
     expect(nextMeeting(ms, lagosTime(2026, 11, 7, 11, 31))?.id).toBe("c");
+  });
+});
+
+describe("recurring meetings", () => {
+  const stored = [
+    {
+      id: "mtg-2026-11-07-sat",
+      type: "SATURDAY" as const,
+      title: "Saturday Sanitation Meeting",
+      startsAt: lagosTime(2026, 11, 7, 9, 30).toISO()!,
+      endsAt: null,
+      venueId: "venue-main",
+      method: "GEO" as const,
+      graceMinutes: 0,
+      openBeforeMin: 60,
+      closeAfterMin: 120,
+      status: "CANCELLED" as const,
+      recurrenceRule: null,
+      requireQr: false,
+      statusNote: "Cancelled",
+    },
+  ];
+
+  it("always provides the next Saturday and Thursday, whatever the date", () => {
+    const far = lagosTime(2027, 3, 3, 12, 0); // a Wednesday long after the seeded data
+    const list = withRecurringMeetings([], far);
+    const next = nextMeeting(list, far)!;
+    expect(next.title).toBe("Thursday Prayer Meeting");
+    expect(DateTime.fromISO(next.startsAt).setZone("Africa/Lagos").toFormat("ccc d LLL HH:mm")).toBe("Thu 4 Mar 20:30");
+  });
+
+  it("keeps stored rows (a cancelled Saturday stays cancelled) and adds the rest", () => {
+    const at = lagosTime(2026, 11, 7, 8, 0);
+    const list = withRecurringMeetings(stored, at);
+    expect(list.filter((m) => m.id === "mtg-2026-11-07-sat")).toHaveLength(1);
+    expect(list.find((m) => m.id === "mtg-2026-11-07-sat")!.status).toBe("CANCELLED");
+    expect(nextMeeting(list, at)!.id).toBe("mtg-2026-11-12-thu");
+    expect(list.find((m) => m.id === "mtg-2026-11-14-sat")!.venueId).toBe("venue-main");
   });
 });

@@ -1,5 +1,5 @@
 import { DateTime } from "luxon";
-import type { MeetingType, TrackingMethod } from "@/lib/repo/types";
+import type { Meeting, MeetingType, TrackingMethod } from "@/lib/repo/types";
 import { MEETING_ZONE } from "./zone";
 
 /** Meeting schedule (spec section 5). All rules run in Africa/Lagos. */
@@ -91,4 +91,44 @@ export function nextMeeting<T extends UpcomingCandidate & { closeAfterMin: numbe
     .filter((m) => DateTime.fromISO(m.startsAt, { zone: "utc" }).plus({ minutes: Math.max(m.closeAfterMin, 0) }) >= now)
     .sort((a, b) => a.startsAt.localeCompare(b.startsAt));
   return upcoming[0] ?? null;
+}
+
+/**
+ * Recurring meetings (spec 5: "recurring rules generate dated meeting rows").
+ * Adds the weekly Saturday and Thursday occurrences for the next `weeks` weeks that are not
+ * stored yet, so there is always a next meeting whatever today's date is. A stored row with
+ * the same id (including a cancelled or rescheduled one) always wins.
+ */
+export function withRecurringMeetings(
+  stored: Meeting[],
+  now: DateTime,
+  weeks = 4,
+  rules: RecurringRule[] = [SATURDAY_RULE, THURSDAY_RULE],
+): Meeting[] {
+  const ids = new Set(stored.map((m) => m.id));
+  const venueId = stored.find((m) => m.venueId)?.venueId ?? null;
+  const generated: Meeting[] = [];
+  for (const rule of rules) {
+    for (const start of occurrences(rule, now.minus({ days: 1 }), now.plus({ weeks }))) {
+      const id = meetingId(rule.type, start);
+      if (ids.has(id)) continue;
+      generated.push({
+        id,
+        type: rule.type,
+        title: rule.title,
+        startsAt: start.toISO()!,
+        endsAt: start.plus({ minutes: rule.type === "SATURDAY" ? 120 : 90 }).toISO()!,
+        venueId,
+        method: rule.method,
+        graceMinutes: 0,
+        openBeforeMin: rule.openBeforeMin,
+        closeAfterMin: rule.closeAfterMin,
+        status: "SCHEDULED",
+        recurrenceRule: rruleFor(rule),
+        requireQr: false,
+        statusNote: null,
+      });
+    }
+  }
+  return [...stored, ...generated].sort((a, b) => a.startsAt.localeCompare(b.startsAt));
 }

@@ -27,7 +27,7 @@ import { StatusChip } from "@/components/attendance/StatusChip";
 import { RoleBadge } from "@/components/layout/RoleBadge";
 import { UserAvatar } from "@/components/ui/user-avatar";
 import { useNow } from "@/hooks/use-now";
-import { simulateTime, startDemoClock } from "@/lib/time/clock";
+import { resetClock, simulateTime } from "@/lib/time/clock";
 import { TIME_PRESETS } from "@/lib/demo/simulate";
 import type { DemoSummary } from "@/lib/demo/summary";
 import { cn } from "@/lib/utils";
@@ -207,8 +207,8 @@ export function DataExplorer() {
                 <Clock3 aria-hidden className="size-5 text-role-strong" /> Simulate time
               </h2>
               <p className="text-sm text-muted-foreground">
-                Demo clock: <span className="tabular font-semibold text-foreground">{s?.atLabel ?? "…"}</span> (Lagos).
-                It keeps ticking from the chosen moment.
+                Clock: <span className="tabular font-semibold text-foreground">{s?.atLabel ?? "…"}</span> (Lagos). Real
+                time unless you pick a moment below; it keeps ticking from there.
               </p>
             </div>
             <Button
@@ -216,10 +216,10 @@ export function DataExplorer() {
               size="sm"
               onClick={() => {
                 setActivePreset(null);
-                startDemoClock();
+                resetClock();
               }}
             >
-              <RotateCcw aria-hidden /> Back to demo today
+              <RotateCcw aria-hidden /> Back to real time
             </Button>
           </div>
           <div role="group" aria-label="Time presets" className="flex flex-wrap gap-2">

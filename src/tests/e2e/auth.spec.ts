@@ -1,5 +1,6 @@
 import { test, expect, type Page, type APIRequestContext } from "@playwright/test";
 import AxeBuilder from "@axe-core/playwright";
+import { DateTime } from "luxon";
 
 // These flows share the server's in-memory state (outbox, invites), so run them in order.
 test.describe.configure({ mode: "serial" });
@@ -83,6 +84,18 @@ test("landing page shows the hero, live countdown, schedule, venue and sign-in l
   await page.setViewportSize({ width: 360, height: 800 });
   await noSideScroll(page);
   await page.screenshot({ path: "test-results/screens/landing-360.png" });
+});
+
+test("the landing countdown agrees with the meeting date and time it shows", async ({ page }) => {
+  // 90 minutes before the next real Saturday meeting (9:30 am Lagos).
+  let sat = DateTime.now().setZone("Africa/Lagos").set({ hour: 9, minute: 30, second: 0, millisecond: 0 });
+  while (sat.weekday !== 6 || sat <= DateTime.now()) sat = sat.plus({ days: 1 }).set({ hour: 9, minute: 30 });
+  await page.clock.setFixedTime(sat.minus({ minutes: 90 }).toJSDate());
+  await page.goto("/");
+  const card = page.locator("section[aria-labelledby='hero-title']");
+  await expect(card.getByRole("heading", { name: "Saturday Sanitation Meeting" })).toBeVisible();
+  await expect(card.getByText(`${sat.toFormat("ccc d LLL")}, 9:30 am (Lagos)`)).toBeVisible();
+  await expect(card.getByText("Starts in 1 hour and 30 minutes.")).toBeAttached();
 });
 
 test("member signs in, sees their own numbers, and signs out", async ({ page }) => {

@@ -49,7 +49,7 @@ Photo downloads were blocked by the build environment, so every photo slot rende
 
 ### Demo clock
 
-The demo world is anchored on Friday 6 November 2026 (spec section 0). In demo mode the clock starts on that date at the current Lagos time of day and keeps ticking, so the demo behaves the same whichever day it is opened.
+~~Originally the demo clock was pinned to Friday 6 November 2026 at the current Lagos time of day.~~ **Changed on 7 November 2026:** that made the landing countdown disagree with the date it displayed once the real date moved on (on Saturday 7 November it counted a full extra day to "Sat 7 Nov, 9:30 am"). The app clock now uses the **real time** by default; the seeded history still ends on 6 November. Demo "Simulate time" presets on `/dev/data` move the clock deliberately, and "Back to real time" resets it. Weekly Saturday and Thursday meetings beyond the seeded ones are generated from the recurring rules (`withRecurringMeetings` in `src/lib/time/schedule.ts`), so there is always a next meeting to count down to; stored rows (for example a cancelled Saturday) always win. Phase 6 will persist generated meetings when admins manage the schedule.
 
 ## Phase 1: data, rules and logic
 
@@ -154,7 +154,7 @@ Final wording of the privacy notice and consent text must be confirmed by qualif
 - The landing countdown fetches the public schedule (`GET /api/v1/meetings?upcoming=true`, which returns only schedule fields) and picks the next meeting with the browser's simulated demo clock.
 - The map uses Leaflet with OpenStreetMap tiles and a custom gold pin, loaded only in the browser. The address is always printed beside it, and "Get directions" opens Google Maps.
 - Protected areas show working placeholders for screens built in later phases. Each placeholder runs the same permission guard, so access rules can already be tested.
-- In demo mode, server-rendered screens use the demo date (Friday 6 November 2026 at the current Lagos time). Session expiry and lockouts always use real time.
+- Server-rendered screens use the real time (see "Demo clock" above). Session expiry and lockouts always use real time.
 
 ### Next.js 16 notes
 

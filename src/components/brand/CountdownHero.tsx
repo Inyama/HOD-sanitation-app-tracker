@@ -69,6 +69,14 @@ export function CountdownHero({
   );
 }
 
+const plural = (n: number, word: string) => `${n} ${word}${n === 1 ? "" : "s"}`;
+
+/** "2 days, 3 hours and 5 minutes" or "1 hour and 30 minutes" when under a day. */
+export function spoken(p: { days: number; hours: number; minutes: number }): string {
+  const tail = `${plural(p.hours, "hour")} and ${plural(p.minutes, "minute")}`;
+  return p.days > 0 ? `${plural(p.days, "day")}, ${tail}` : tail;
+}
+
 /** Live days/hours/minutes/seconds tiles for a start time, driven by the simulated clock. */
 export function CountdownTiles({ startsAt, className }: { startsAt: string; className?: string }) {
   const now = useNow(1000);
@@ -84,13 +92,7 @@ export function CountdownTiles({ startsAt, className }: { startsAt: string; clas
   ];
   return (
     <div className={className}>
-      <p className="sr-only">
-        {started
-          ? "The meeting has started."
-          : p
-            ? `Starts in ${p.days} days, ${p.hours} hours and ${p.minutes} minutes.`
-            : ""}
-      </p>
+      <p className="sr-only">{started ? "The meeting has started." : p ? `Starts in ${spoken(p)}.` : ""}</p>
       {started ? (
         <p className="rounded-(--radius-md) border border-white/20 bg-white/10 px-5 py-4 text-center font-heading text-xl font-semibold">
           Happening now

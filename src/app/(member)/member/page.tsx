@@ -4,7 +4,7 @@ import { CalendarDays, Flame, Timer } from "lucide-react";
 import { requirePage } from "@/lib/auth/session";
 import { repo } from "@/lib/repo";
 import { attendanceViews, countedMeetings, currentStreak } from "@/lib/attendance/aggregate";
-import { nextMeeting } from "@/lib/time/schedule";
+import { nextMeeting, withRecurringMeetings } from "@/lib/time/schedule";
 import { formatShort } from "@/lib/time/zone";
 import { serverNow } from "@/lib/time/server-now";
 import { firstName } from "@/lib/notifications/templates";
@@ -25,7 +25,7 @@ export default async function MemberHome() {
   const now = serverNow();
   const views = attendanceViews(records, meetings, { approvedAt: user.approvedAt, now });
   const streak = currentStreak(countedMeetings(records, meetings, { approvedAt: user.approvedAt, now }));
-  const next = nextMeeting(meetings, now);
+  const next = nextMeeting(withRecurringMeetings(meetings, now), now);
 
   return (
     <>

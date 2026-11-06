@@ -70,4 +70,4 @@ docs/                     DECISIONS.md, reference-screenshots/
 
 ## Demo facts
 
-Demo "today" is Friday 6 November 2026; the demo clock starts on that date at the current Lagos time of day. Demo accounts use password `Demo@2026` (spec 10.4). Demo mode is on unless `NEXT_PUBLIC_DEMO_MODE=false`.
+The seeded history runs up to Friday 6 November 2026; the app clock is the real time unless "Simulate time" on `/dev/data` moves it. Upcoming weekly meetings come from the recurring rules (`withRecurringMeetings`). Demo accounts use password `Demo@2026` (spec 10.4). Demo mode is on unless `NEXT_PUBLIC_DEMO_MODE=false`.
