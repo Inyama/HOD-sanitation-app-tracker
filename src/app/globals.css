@@ -1,0 +1,238 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
+@import "../styles/tokens.css";
+
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-jakarta), ui-sans-serif, system-ui, sans-serif;
+  --font-heading: var(--font-fraunces), ui-serif, Georgia, serif;
+  --font-mono: ui-monospace, SFMono-Regular, Menlo, monospace;
+
+  --color-sidebar-ring: var(--sidebar-ring);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar: var(--sidebar);
+  --color-chart-5: var(--chart-5);
+  --color-chart-4: var(--chart-4);
+  --color-chart-3: var(--chart-3);
+  --color-chart-2: var(--chart-2);
+  --color-chart-1: var(--chart-1);
+  --color-ring: var(--ring);
+  --color-input: var(--input);
+  --color-border: var(--border);
+  --color-destructive: var(--destructive);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-accent: var(--accent);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-muted: var(--muted);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-secondary: var(--secondary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-primary: var(--primary);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-popover: var(--popover);
+  --color-card-foreground: var(--card-foreground);
+  --color-card: var(--card);
+
+  /* HOD palette as Tailwind colours: bg-navy-900, text-gold-700, etc. */
+  --color-navy-950: var(--navy-950);
+  --color-navy-900: var(--navy-900);
+  --color-navy-800: var(--navy-800);
+  --color-royal-700: var(--royal-700);
+  --color-royal-600: var(--royal-600);
+  --color-royal-500: var(--royal-500);
+  --color-sky-400: var(--sky-400);
+  --color-sky-100: var(--sky-100);
+  --color-gold-700: var(--gold-700);
+  --color-gold-600: var(--gold-600);
+  --color-gold-500: var(--gold-500);
+  --color-gold-300: var(--gold-300);
+  --color-gold-100: var(--gold-100);
+  --color-teal-700: var(--teal-700);
+  --color-teal-600: var(--teal-600);
+  --color-teal-500: var(--teal-500);
+  --color-ink: var(--ink);
+  --color-slate-600: var(--slate-600);
+  --color-mist: var(--mist);
+  --color-paper: var(--paper);
+  --color-surface: var(--surface);
+  --color-surface-2: var(--surface-2);
+  --color-success: var(--success);
+  --color-warning: var(--warning);
+  --color-danger: var(--danger);
+  --color-info: var(--info);
+  --color-hod-red: var(--hod-logo-red);
+  --color-role: var(--role-accent);
+  --color-role-strong: var(--role-accent-strong);
+  --color-role-soft: var(--role-accent-soft);
+  --color-role-contrast: var(--role-accent-contrast);
+  --color-role-btn: var(--role-btn-bg);
+  --color-role-btn-fg: var(--role-btn-fg);
+
+  --radius-sm: calc(var(--radius) * 0.6);
+  --radius-md: calc(var(--radius) * 0.8);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) * 1.4);
+  --radius-2xl: calc(var(--radius) * 1.8);
+  --radius-3xl: calc(var(--radius) * 2.2);
+  --radius-4xl: calc(var(--radius) * 2.6);
+
+  --shadow-soft: var(--shadow-soft);
+  --shadow-lift: var(--shadow-lift);
+
+  /* spec scale: 12, 14, 16, 20, 24, 32, 48 */
+  --text-display: 3rem;
+  --text-display--line-height: 1.2;
+}
+
+:root {
+  --radius: 0.75rem;
+  --background: var(--paper);
+  --foreground: var(--ink);
+  --card: var(--surface);
+  --card-foreground: var(--ink);
+  --popover: var(--surface);
+  --popover-foreground: var(--ink);
+  --primary: var(--royal-600);
+  --primary-foreground: #ffffff;
+  --secondary: var(--sky-100);
+  --secondary-foreground: var(--navy-900);
+  --muted: #f1f5f9;
+  --muted-foreground: var(--slate-600);
+  --accent: var(--gold-100);
+  --accent-foreground: var(--navy-900);
+  --destructive: var(--danger);
+  --border: var(--mist);
+  --input: #cbd5e1;
+  --ring: var(--sky-400);
+  --chart-1: var(--series-1);
+  --chart-2: var(--series-2);
+  --chart-3: var(--series-3);
+  --chart-4: var(--series-4);
+  --chart-5: var(--slate-600);
+  --sidebar: var(--navy-900);
+  --sidebar-foreground: #e8eefc;
+  --sidebar-primary: var(--role-accent);
+  --sidebar-primary-foreground: var(--role-accent-contrast);
+  --sidebar-accent: rgba(255, 255, 255, 0.08);
+  --sidebar-accent-foreground: #ffffff;
+  --sidebar-border: rgba(255, 255, 255, 0.1);
+  --sidebar-ring: var(--sky-400);
+}
+
+.dark {
+  --background: var(--paper);
+  --foreground: var(--ink);
+  --card: var(--surface);
+  --card-foreground: var(--ink);
+  --popover: #141e3d;
+  --popover-foreground: var(--ink);
+  --primary: var(--sky-400);
+  --primary-foreground: var(--navy-900);
+  --secondary: #1a2650;
+  --secondary-foreground: var(--ink);
+  --muted: #17213f;
+  --muted-foreground: var(--slate-600);
+  --accent: rgba(212, 164, 55, 0.16);
+  --accent-foreground: var(--gold-300);
+  --destructive: #fb7185;
+  --border: var(--mist);
+  --input: #34416b;
+  --ring: var(--sky-400);
+  --sidebar: var(--navy-950);
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  html {
+    @apply font-sans;
+    -webkit-text-size-adjust: 100%;
+  }
+  body {
+    @apply bg-background text-foreground;
+    line-height: 1.5;
+    font-feature-settings: "ss01";
+  }
+  h1,
+  h2,
+  h3,
+  h4 {
+    font-family: var(--font-heading);
+    line-height: 1.2;
+    letter-spacing: -0.01em;
+  }
+  /* Visible focus ring: --sky-400, 2px (spec 3.8) */
+  :focus-visible {
+    outline: 2px solid var(--sky-400);
+    outline-offset: 2px;
+  }
+  ::selection {
+    background: var(--gold-300);
+    color: var(--navy-900);
+  }
+}
+
+@layer utilities {
+  .tabular {
+    font-variant-numeric: tabular-nums;
+  }
+  .text-balance {
+    text-wrap: balance;
+  }
+  .bg-grad-hero {
+    background-image: var(--grad-hero);
+  }
+  .bg-grad-gold {
+    background-image: var(--grad-gold);
+  }
+  .bg-grad-fresh {
+    background-image: var(--grad-fresh);
+  }
+  .bg-grad-sunrise {
+    background-image: var(--grad-sunrise);
+  }
+  .bg-grad-glass {
+    background-image: var(--grad-glass);
+  }
+  .bg-grad-sidebar {
+    background-image: var(--grad-sidebar);
+  }
+  .text-gold-gradient {
+    background-image: var(--grad-gold);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+  /* Keeps top-right controls clear of the Demo ribbon */
+  [data-demo="true"] .demo-pad {
+    padding-right: 3.75rem;
+  }
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+  .no-scrollbar {
+    scrollbar-width: none;
+  }
+}
+
+/* All motion off under reduced-motion (spec 3.7) */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

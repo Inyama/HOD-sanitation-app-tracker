@@ -1,0 +1,10 @@
+node_modules
+.next
+coverage
+playwright-report
+test-results
+package-lock.json
+docs/reference-screenshots
+public/images
+src/data/sample-sheets/*.xlsx
+HOD-BUILD-PROMPT.md
