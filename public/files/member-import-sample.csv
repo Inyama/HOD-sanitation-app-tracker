@@ -1,0 +1,9 @@
+name,email,phone,role,team,city,country,remote
+Folake Adeyemi,folake.adeyemi@example.com,+234 802 555 0101,member,Kitchen,Lagos,Nigeria,no
+Ifeanyi Okeke,ifeanyi.okeke@example.com,+234 803 555 0102,volunteer,Outdoors,Lagos,Nigeria,no
+Kemi Balogun,kemi.balogun@example.com,,member,,London,United Kingdom,yes
+Tunde Bakare,tunde.bakare.example.com,,member,,Lagos,Nigeria,no
+Adebayo Johnson,member@hod-demo.example.com,,member,,Lagos,Nigeria,no
+Sola Ade,sola.ade@example.com,,choir,,Lagos,Nigeria,no
+Nneka Obi,nneka.obi@example.com,,member,Choir,Lagos,Nigeria,no
+Folake A.,folake.adeyemi@example.com,,member,,Lagos,Nigeria,no

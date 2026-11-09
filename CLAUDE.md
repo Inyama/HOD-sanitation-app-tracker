@@ -40,14 +40,16 @@ Husky pre-commit runs lint-staged (Prettier), lint, typecheck and unit tests.
 src/app/                  routes (public, member, volunteer, admin, api/v1, design-system, dev)
 src/components/ui/        shadcn primitives + HOD variants (GlassCard, DataTable, EmptyState, ThemeToggle)
 src/components/brand/     Logo, HeroBanner, PhotoCard, GradientBackdrop, CountdownHero
-src/components/charts/    AttendanceRing, Heatmap, KpiCard, TrendLine, StackedBars, Donut, Sparkline
+src/components/charts/    AttendanceRing, Heatmap, ArrivalHeatmap, KpiCard, TrendLine, StackedBars, Donut, Sparkline
 src/components/layout/    AppShell, Sidebar, BottomNav, TopBar, RoleBadge, DemoRibbon, nav config
 src/components/attendance StatusChip, CheckInPanel
 src/components/volunteer/ DutyBoard, HoursPanel, IssueReporter, MarshalBoard, TeamView, RsvpButtons
 src/components/screens/   screens shared by member and volunteer (Attendance, Messages, Settings)
+src/components/admin/     DateRangePicker, MembersDirectory, ApprovalsBoard, RolesManager, AuditLogView, SettingsForm, dialogs
 src/lib/time/             clock (simulated now), zone helpers, meeting schedule
 src/lib/attendance/       status, geofence, percentage, aggregation, badges, excuses
 src/lib/volunteer/        zones, duties, hours, marshal lists (pure); service, data, auto-hours (server)
+src/lib/admin/            range, dashboard, members, roles, audit, settings (pure); service, data, api (server)
 src/lib/matching/         normalize, similarity, columns, parse (CSV/XLSX), matchSheet, upload
 src/lib/notifications/    schedule (dueNotifications), templates, audience
 src/lib/auth/             permissions, session cookie (claims, tokens), sign-in service, lockout, TOTP, passwords

@@ -4,7 +4,16 @@ import { firstName } from "./templates";
 /** Account emails (spec 8: approved, welcome, role change, reset, new device; plus verification and invites). */
 
 export type AccountEmailKind =
-  "VERIFY_EMAIL" | "PASSWORD_RESET" | "NEW_DEVICE" | "ADMIN_INVITE" | "SIGNUP_RECEIVED" | "PASSWORD_CHANGED";
+  | "VERIFY_EMAIL"
+  | "PASSWORD_RESET"
+  | "NEW_DEVICE"
+  | "ADMIN_INVITE"
+  | "SIGNUP_RECEIVED"
+  | "PASSWORD_CHANGED"
+  | "ACCOUNT_APPROVED"
+  | "SIGNUP_DECLINED"
+  | "WELCOME_ADDED"
+  | "ROLE_CHANGED";
 
 export interface AccountEmailContext {
   name?: string;
@@ -12,6 +21,8 @@ export interface AccountEmailContext {
   when?: string;
   device?: string;
   level?: string;
+  /** Role change: plain-language lines describing the change. */
+  lines?: string[];
 }
 
 export function accountEmail(kind: AccountEmailKind, ctx: AccountEmailContext): EmailContent & { subject: string } {
@@ -69,6 +80,50 @@ export function accountEmail(kind: AccountEmailKind, ctx: AccountEmailContext): 
           "If this was you, there is nothing to do. If not, reset your password now and tell a unit admin.",
         ],
         button: ctx.url ? { label: "Reset my password", url: ctx.url } : undefined,
+      };
+    case "ACCOUNT_APPROVED":
+      return {
+        subject: "Welcome to the Sanitation Unit: your account is approved",
+        preheader: "You can now sign in and check in at meetings.",
+        heading: "You are approved",
+        paragraphs: [
+          hi,
+          "Good news: a unit admin has approved your account. You can now sign in, see the meeting schedule and check in when you arrive at the venue.",
+          "Saturday Sanitation Meetings start at 9:30 am. Arrive before then to be marked On time.",
+        ],
+        button: { label: "Sign in", url: ctx.url! },
+      };
+    case "SIGNUP_DECLINED":
+      return {
+        subject: "About your request to join the Sanitation Unit",
+        preheader: "Your request was not approved this time.",
+        heading: "Your request to join",
+        paragraphs: [
+          hi,
+          "Thank you for wanting to serve with the Sanitation Unit. Your request was not approved this time.",
+          "If you think this is a mistake or would like to talk about it, reply to this email or speak to a unit leader on Saturday.",
+        ],
+      };
+    case "WELCOME_ADDED":
+      return {
+        subject: "You have been added to HOD Sanitation Hub",
+        preheader: "Choose a password to start using your account.",
+        heading: "Welcome to the Sanitation Unit",
+        paragraphs: [
+          hi,
+          "A unit admin has created an account for you on HOD Sanitation Hub, where the unit keeps attendance, reminders and duty rosters.",
+          "Choose a password to sign in. After that you can check in at meetings from your phone.",
+        ],
+        button: { label: "Choose my password", url: ctx.url! },
+        note: "This link expires in 7 days and works once. If you were not expecting this, you can ignore this email.",
+      };
+    case "ROLE_CHANGED":
+      return {
+        subject: "Your role in the Sanitation Unit has changed",
+        preheader: "A unit admin updated your role or titles.",
+        heading: "Your role has changed",
+        paragraphs: [hi, "A unit admin has updated your role in HOD Sanitation Hub.", ...(ctx.lines ?? [])],
+        button: ctx.url ? { label: "Open the app", url: ctx.url } : undefined,
       };
     case "ADMIN_INVITE":
       return {

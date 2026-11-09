@@ -103,6 +103,15 @@ export interface SignupDetails {
   notes?: string | null;
 }
 
+/** Added: private notes admins keep about a person (spec 7.4 member profile). Never shown to the person. */
+export interface MemberNote {
+  id: string;
+  userId: string;
+  authorId: string;
+  body: string;
+  createdAt: string;
+}
+
 export interface UserTitle {
   id: string;
   userId: string;

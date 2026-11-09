@@ -506,12 +506,35 @@ export async function acceptInvite(
   const valid = isDemoMode() ? /^\d{6}$/.test(body.code) : verifyTotp(body.secret, body.code, nowMs());
   if (!valid)
     return fail("INVALID_CODE", "That code is not right. Scan the QR code again and enter the current six-digit code.");
-  if (await repo.users.findFirst({ email: found.invite.email }))
-    return fail(
-      "EMAIL_IN_USE",
-      "An account already exists for this email. Ask the Super Admin to change its role instead.",
-    );
   const now = new Date(nowMs()).toISOString();
+  const existing = await repo.users.findFirst({ email: found.invite.email });
+  if (existing) {
+    // Promotion of an active member or volunteer: they set a new password and two-factor here.
+    if (existing.role === "ADMIN" || existing.status !== "ACTIVE")
+      return fail("EMAIL_IN_USE", "An account already exists for this email. Ask the Super Admin for help.");
+    const before = { role: existing.role, adminLevel: existing.adminLevel };
+    const titles = await repo.userTitles.list({ where: { userId: existing.id } });
+    for (const t of titles) await repo.userTitles.delete(t.id);
+    const promoted = await repo.users.update(existing.id, {
+      name: body.name.replace(/\s+/g, " ").trim(),
+      passwordHash: await hashPassword(body.password),
+      role: "ADMIN",
+      adminLevel: found.invite.adminLevel,
+      totpSecret: body.secret,
+      emailVerifiedAt: existing.emailVerifiedAt ?? now,
+    });
+    await repo.invites.update(found.invite.id, { usedAt: now });
+    await repo.audit.append({
+      actorId: existing.id,
+      action: "INVITE_ACCEPTED",
+      entity: "Invite",
+      entityId: found.invite.id,
+      before,
+      after: { userId: existing.id, role: "ADMIN", adminLevel: found.invite.adminLevel },
+      ip: ctx.ip,
+    });
+    return completeSignIn(repo, promoted, false, "/admin", ctx);
+  }
   const user = await repo.users.create({
     id: `usr-${randomToken(9)}`,
     name: body.name.replace(/\s+/g, " ").trim(),

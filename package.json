@@ -77,8 +77,5 @@
   },
   "allowScripts": {
     "esbuild@0.28.2": true
-  },
-  "lint-staged": {
-    "*.{ts,tsx,js,mjs,css,json,md}": "prettier --write --ignore-unknown"
   }
 }

@@ -130,7 +130,7 @@ test("signed-out visitors go to the right sign-in tab and come back afterwards",
   await page.getByLabel("Six-digit code").fill("000111");
   await page.getByRole("button", { name: "Verify and sign in" }).click();
   await expect(page).toHaveURL(/\/admin\/members$/);
-  await expect(page.getByRole("heading", { name: "Members directory" })).toBeVisible();
+  await expect(page.getByRole("heading", { level: 1, name: "Members" })).toBeVisible();
 });
 
 test("volunteer titles and admin levels decide what opens", async ({ browser }) => {
@@ -248,7 +248,8 @@ test("admin invitation: set a password, turn on two-factor and land in the admin
   await page.getByLabel(/Six-digit code/).fill("246810");
   await page.getByRole("button", { name: "Turn on two-factor and finish" }).click();
   await expect(page).toHaveURL(/\/admin$/);
-  await expect(page.getByText(/Signed in as Communications Officer/)).toBeVisible();
+  await expect(page.getByText(/Welcome, Bisi/)).toBeVisible();
+  await expect(page.getByRole("banner").getByText("Communications Officer")).toBeVisible();
 
   await page.goto("/accept-invite/demo-invite-expired");
   await expect(page.getByRole("main").getByRole("alert")).toContainText("expired");

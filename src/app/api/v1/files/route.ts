@@ -32,7 +32,7 @@ export async function POST(req: NextRequest) {
   const kind = sniff(buf);
   if (!kind || kind !== body.data.type)
     return apiError("UNSUPPORTED_TYPE", "Upload a PNG, JPEG or WebP image, or a PDF.", 415);
-  if (body.data.purpose === "avatar" && kind === "application/pdf")
+  if ((body.data.purpose === "avatar" || body.data.purpose === "logo") && kind === "application/pdf")
     return apiError("UNSUPPORTED_TYPE", "A profile photo must be an image.", 415);
   const id = randomToken(12);
   authStore().files.set(id, {

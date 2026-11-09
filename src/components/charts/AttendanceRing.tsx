@@ -60,7 +60,7 @@ export function AttendanceRing({
             strokeWidth={stroke}
             strokeLinecap="round"
             strokeDasharray={c}
-            initial={{ strokeDashoffset: reduce ? offset : c }}
+            initial={{ strokeDashoffset: c }}
             animate={{ strokeDashoffset: offset }}
             transition={{ duration: reduce ? 0 : 0.8, ease: [0.22, 1, 0.36, 1] }}
           />

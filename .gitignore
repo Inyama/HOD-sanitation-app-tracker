@@ -50,3 +50,7 @@ next-env.d.ts
 
 # local data written by the json-mock repository
 /.data/
+
+# local screenshot helper
+_shot.mjs
+.shot-state-*.json

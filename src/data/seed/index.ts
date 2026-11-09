@@ -11,6 +11,7 @@ import type {
   EventRsvp,
   ExcuseRequest,
   Invite,
+  MemberNote,
   IssueReport,
   Meeting,
   Message,
@@ -82,6 +83,7 @@ export interface SeedData {
   badges: Badge[];
   userBadges: UserBadge[];
   invites: Invite[];
+  memberNotes: MemberNote[];
   auditLogs: AuditLog[];
   settings: AppSettings;
   /** Demo account key to user id, e.g. demo.adebayo = "usr-adebayo". */
@@ -1280,6 +1282,24 @@ export function buildSeed(): SeedData {
   audit(0, demo.esther, "UPLOAD_PREVIEWED", "AttendanceUpload", "upl-2026-11-05");
   auditLogs.sort((a, b) => a.createdAt.localeCompare(b.createdAt));
 
+  // ---- Admin notes on member profiles -----------------------------------------------------
+  const memberNotes: MemberNote[] = [
+    {
+      id: "note-01",
+      userId: demo.chioma,
+      authorId: demo.funke,
+      body: "Started a new job with Saturday shifts in September. Agreed to try the Thursday prayer meeting while she settles in.",
+      createdAt: iso(now.minus({ days: 21, hours: 3 })),
+    },
+    {
+      id: "note-02",
+      userId: demo.victor,
+      authorId: demo.daniel,
+      body: "Suspended after repeated no-shows. Unit Lead to call him before any change of status.",
+      createdAt: iso(now.minus({ days: 47, hours: 1 })),
+    },
+  ];
+
   return {
     users,
     userTitles,
@@ -1303,6 +1323,7 @@ export function buildSeed(): SeedData {
     badges,
     userBadges,
     invites,
+    memberNotes,
     auditLogs,
     settings: { ...DEFAULT_SETTINGS },
     demo,

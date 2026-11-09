@@ -14,10 +14,12 @@ interface SidebarProps {
   onToggle: () => void;
   /** Hrefs the current person cannot open (hidden from nav; the server still guards them). */
   hidden?: string[];
+  /** Live counts shown beside links, e.g. pending approvals. */
+  badges?: Record<string, number>;
 }
 
 /** Desktop and tablet (768px and up) navy gradient sidebar with role-coloured active item. */
-export function Sidebar({ role, pathname, collapsed, onToggle, hidden = [] }: SidebarProps) {
+export function Sidebar({ role, pathname, collapsed, onToggle, hidden = [], badges = {} }: SidebarProps) {
   const home = ROLE_META[role].home;
   return (
     <aside
@@ -57,6 +59,7 @@ export function Sidebar({ role, pathname, collapsed, onToggle, hidden = [] }: Si
                 {items.map((item) => {
                   const active = isActive(pathname, item.href, home);
                   const Icon = item.icon;
+                  const badge = badges[item.href] ?? item.badge;
                   const link = (
                     <Link
                       href={item.href}
@@ -73,9 +76,10 @@ export function Sidebar({ role, pathname, collapsed, onToggle, hidden = [] }: Si
                       <Icon aria-hidden className={cn("size-[18px] shrink-0", active && "text-role")} />
                       {!collapsed && <span className="truncate">{item.label}</span>}
                       {collapsed && <span className="sr-only">{item.label}</span>}
-                      {!!item.badge && !collapsed && (
+                      {!!badge && !collapsed && (
                         <span className="ml-auto rounded-full bg-role px-1.5 text-[0.6875rem] font-bold text-role-contrast">
-                          {item.badge}
+                          {badge}
+                          <span className="sr-only"> waiting</span>
                         </span>
                       )}
                     </Link>

@@ -225,6 +225,23 @@
   }
 }
 
+/* Page fade-and-rise on navigation (spec 3.7); CSS so server and client render the same markup */
+@keyframes page-enter {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+@media (prefers-reduced-motion: no-preference) {
+  .page-enter {
+    animation: page-enter 0.2s ease-out both;
+  }
+}
+
 /* All motion off under reduced-motion (spec 3.7) */
 @media (prefers-reduced-motion: reduce) {
   *,

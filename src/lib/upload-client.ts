@@ -15,7 +15,7 @@ function toBase64(file: File): Promise<string> {
 /** Browser upload of a proof, photo or issue picture to /api/v1/files. */
 export async function uploadFile(
   file: File,
-  purpose: "excuse-proof" | "avatar" | "issue-photo",
+  purpose: "excuse-proof" | "avatar" | "issue-photo" | "logo",
 ): Promise<{ ok: true; url: string; name: string } | ApiFailure> {
   if (!ACCEPTED_UPLOADS.includes(file.type as (typeof ACCEPTED_UPLOADS)[number])) {
     return { ok: false, status: 415, code: "UNSUPPORTED_TYPE", message: "Choose a PNG, JPEG or WebP image, or a PDF." };

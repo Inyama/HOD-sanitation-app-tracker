@@ -11,6 +11,7 @@ import type {
   Invite,
   IssueReport,
   Meeting,
+  MemberNote,
   Message,
   MessageRecipient,
   Notification,
@@ -87,6 +88,7 @@ export interface Repository {
   badges: Table<Badge>;
   userBadges: Table<UserBadge>;
   invites: Table<Invite>;
+  memberNotes: Table<MemberNote>;
   audit: AppendOnly<AuditLog>;
   settings: SettingsStore;
   /** Run several writes as one unit; on error the json-mock restores the previous state. */

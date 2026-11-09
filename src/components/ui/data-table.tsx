@@ -38,6 +38,8 @@ export interface DataTableProps<T> {
   /** Max height of the scroll area so the sticky header has something to stick to. */
   maxHeight?: number;
   toolbar?: React.ReactNode;
+  /** Name of a row for its selection checkbox, e.g. the person's name. */
+  rowLabel?: (row: T) => string;
   className?: string;
 }
 
@@ -60,6 +62,7 @@ export function DataTable<T>({
   empty,
   maxHeight = 520,
   toolbar,
+  rowLabel,
   className,
 }: DataTableProps<T>) {
   const [sort, setSort] = React.useState<SortState>(initialSort);
@@ -149,7 +152,7 @@ export function DataTable<T>({
             tabIndex={0}
             role="region"
             aria-label={`${caption} (scrollable)`}
-            className="hidden overflow-auto sm:block"
+            className="relative hidden overflow-auto sm:block"
             style={{ maxHeight }}
           >
             <table className="w-full border-separate border-spacing-0 text-sm">
@@ -216,7 +219,11 @@ export function DataTable<T>({
                     <tr key={id} className={cn("transition-colors hover:bg-muted/50", isSel && "bg-role-soft/60")}>
                       {selectable && (
                         <td className={cn("border-b border-border/70", cellPad)}>
-                          <Checkbox aria-label={`Select row`} checked={isSel} onCheckedChange={() => toggleOne(id)} />
+                          <Checkbox
+                            aria-label={rowLabel ? `Select ${rowLabel(row)}` : "Select row"}
+                            checked={isSel}
+                            onCheckedChange={() => toggleOne(id)}
+                          />
                         </td>
                       )}
                       {columns.map((c) => (
@@ -248,7 +255,7 @@ export function DataTable<T>({
                 <li key={id} className="flex gap-3 p-4">
                   {selectable && (
                     <Checkbox
-                      aria-label="Select row"
+                      aria-label={rowLabel ? `Select ${rowLabel(row)}` : "Select row"}
                       className="mt-1"
                       checked={selected.has(id)}
                       onCheckedChange={() => toggleOne(id)}

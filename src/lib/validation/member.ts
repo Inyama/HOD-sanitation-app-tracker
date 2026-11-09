@@ -64,7 +64,7 @@ export const fileUpload = z.object({
   type: z.enum(["image/png", "image/jpeg", "image/webp", "application/pdf"]),
   /** Base64 data, no data: prefix. */
   data: z.string().min(4).max(3_000_000),
-  purpose: z.enum(["excuse-proof", "avatar", "issue-photo"]),
+  purpose: z.enum(["excuse-proof", "avatar", "issue-photo", "logo"]),
 });
 
 export const rsvpBody = z.object({ answer: z.enum(["GOING", "MAYBE", "NO"]) });
