@@ -1170,7 +1170,7 @@ export function buildSeed(): SeedData {
     reporterId: volunteersActive[i % volunteersActive.length].id,
     area: x.area,
     urgency: x.urgency as IssueReport["urgency"],
-    photoUrl: i % 3 === 0 ? `/uploads/issue-${i + 1}.jpg` : null,
+    photoUrl: i % 3 === 0 ? "/files/sample-issue.jpg" : null,
     note: x.note,
     status: x.status as IssueReport["status"],
     resolvedById: x.status === "RESOLVED" ? demo.funke : null,

@@ -137,7 +137,7 @@ test("volunteer titles and admin levels decide what opens", async ({ browser }) 
   const grace = await (await browser.newContext()).newPage();
   await signIn(grace, "volunteer@hod-demo.example.com", "volunteer");
   await expect(grace).toHaveURL(/\/volunteer$/);
-  await expect(grace.getByRole("main").getByText("Team Lead, Check-in Marshal")).toBeVisible();
+  await expect(grace.getByRole("main").getByText(/Serving as Team Lead and Check-in Marshal/)).toBeVisible();
   await grace.goto("/volunteer/marshal");
   await expect(grace.getByRole("heading", { name: "Marshal tools" })).toBeVisible();
   await grace.close();

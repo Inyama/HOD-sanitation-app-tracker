@@ -176,3 +176,16 @@ Final wording of the privacy notice and consent text must be confirmed by qualif
 - **PDF statements** use @react-pdf with the logo as PNG bytes (WebP is not supported).
 - **Account deletion requests** set `User.deletionRequestedAt` (new field) and are logged; an admin confirms them in Phase 5.
 - **Messages** gained an optional `attachments` list; the Deep Clean message carries `public/files/deep-clean-checklist.pdf`.
+
+## Phase 4: volunteer area
+
+- **Zone capacities and arrival times** (`src/lib/volunteer/zones.ts`): Sanctuary 5, Restrooms 3, Entrance 3, Kitchen 3, Outdoors 4. Entrance and Kitchen arrive 30 minutes early; the other zones arrive 15 minutes early. Each zone lists its supplies and tasks.
+- **One duty per Saturday.** The board shows the next two Saturdays. Assigned, swap-requested and done duties hold a spot; a swapped duty frees it.
+- **Withdrawing** is allowed up to 12 hours before the meeting. After that the volunteer asks for a swap, and the Team Lead of their team (or an admin with duty rights) approves or declines it. Both decisions are audited.
+- **Automatic hours:** when a volunteer checks in for a Saturday or special meeting (by phone or manually), the meeting's length is logged once as verified service hours. Thursday prayer meetings do not count.
+- **Manual hours** cover the last 60 days, 0.5 to 12 hours per entry, and wait for admin verification. The year certificate counts verified hours only.
+- **Marshal manual check-in** is only for people on the expected list while the window is open. The marshal can't check themselves in this way. The record is marked Manual, flagged for admin review, and audited with the marshal's name.
+- **The rotating QR code** changes every 30 seconds and links to the member check-in page with the code filled in.
+- **Encouragement** goes to one person at most once every 24 hours. It arrives as a message and an in-app notification.
+- **Volunteers needed** on Events: open duty spots for Saturdays; for special events, 20 minus the people going.
+- **Shared screens:** Attendance, Messages and Settings are the same server components (`src/components/screens`) under `/member` and `/volunteer`, each with its own permission check.

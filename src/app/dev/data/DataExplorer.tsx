@@ -381,7 +381,7 @@ export function DataExplorer() {
                     Nothing is due right now. Try Sat 08:25 then wait for 08:30, or pick Thu 19:30.
                   </p>
                 ) : (
-                  <ul className="space-y-1.5 text-sm">
+                  <ul aria-label="Reminders due this minute" className="space-y-1.5 text-sm">
                     {Object.entries(s.due.byType).map(([t, n]) => (
                       <li key={t} className="flex justify-between gap-3">
                         <span>{typeLabel[t] ?? t}</span>

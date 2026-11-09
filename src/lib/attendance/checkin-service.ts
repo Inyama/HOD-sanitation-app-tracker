@@ -9,6 +9,7 @@ import { evaluateCheckIn, REJECTION_MESSAGES, type CheckInRejection, type CheckI
 import { describeFlags, spoofFlags } from "./geofence";
 import { verifyQrCode } from "./qr";
 import { attendanceViews } from "./aggregate";
+import { grantAutoHours } from "@/lib/volunteer/auto-hours";
 
 /**
  * Geolocation check-in (spec 6.1, 6.2, 11). The browser sends only coordinates; time and status
@@ -165,6 +166,8 @@ export async function performCheckIn(
   };
   if (existing) await repo.records.update(existing.id, data);
   else await repo.records.create({ id: `rec-${meeting.id.slice(4)}-${user.id.slice(4)}`, ...data });
+
+  await grantAutoHours(repo, user, meeting, now);
 
   const [records, meetings] = await Promise.all([
     repo.records.list({ where: { userId: user.id } }),

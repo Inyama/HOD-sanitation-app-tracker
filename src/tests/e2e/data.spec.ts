@@ -40,7 +40,9 @@ test.describe("demo data and rules (Phase 1)", () => {
     await page.getByRole("button", { name: /Sat 08:25/ }).click();
     await expect(page.getByText("Check-in not open yet")).toBeVisible();
     await page.getByRole("button", { name: /Thu 19:30/ }).click();
-    await expect(page.getByText("Thursday: hour before")).toBeVisible();
+    await expect(
+      page.getByRole("list", { name: "Reminders due this minute" }).getByText("Thursday: hour before"),
+    ).toBeVisible();
 
     const results = await new AxeBuilder({ page }).analyze();
     const serious = results.violations

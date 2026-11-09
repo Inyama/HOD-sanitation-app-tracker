@@ -167,3 +167,75 @@ export function logoImage(): { data: Buffer; format: "png" } {
 export async function renderMemberReportPdf(report: MemberReport): Promise<Buffer> {
   return renderToBuffer(<StatementDoc r={report} logo={logoImage()} />);
 }
+
+// ---------------------------------------------------------------------------
+// Yearly service certificate (spec 7.3)
+// ---------------------------------------------------------------------------
+
+export interface CertificateData {
+  name: string;
+  year: number;
+  hours: number;
+  meetings: number;
+  issuedOn: string;
+}
+
+const cs = StyleSheet.create({
+  page: { padding: 0, fontFamily: "Helvetica", color: INK },
+  frame: { margin: 28, flexGrow: 1, borderWidth: 3, borderColor: GOLD, padding: 40, alignItems: "center" },
+  inner: { flexGrow: 1, width: "100%", borderWidth: 1, borderColor: NAVY, padding: 36, alignItems: "center" },
+  logo: { width: 84, height: 77, marginBottom: 12 },
+  kicker: { fontSize: 10, letterSpacing: 3, color: SLATE, textTransform: "uppercase" },
+  title: { fontFamily: "Times-Bold", fontSize: 34, color: NAVY, marginTop: 8 },
+  presented: { marginTop: 22, fontSize: 12, color: SLATE },
+  name: { fontFamily: "Times-Bold", fontSize: 30, marginTop: 8, color: INK },
+  rule: { width: 260, height: 2, backgroundColor: GOLD, marginTop: 6 },
+  body: { marginTop: 18, fontSize: 12.5, textAlign: "center", lineHeight: 1.5, maxWidth: 520 },
+  hours: { fontFamily: "Helvetica-Bold", fontSize: 40, color: NAVY, marginTop: 14 },
+  hoursLabel: { fontSize: 10, color: SLATE, textTransform: "uppercase", letterSpacing: 2 },
+  footer: { flexDirection: "row", marginTop: "auto", width: "100%", justifyContent: "space-between", paddingTop: 30 },
+  sig: {
+    width: 200,
+    borderTopWidth: 1,
+    borderTopColor: SLATE,
+    paddingTop: 4,
+    fontSize: 9,
+    color: SLATE,
+    textAlign: "center",
+  },
+});
+
+function CertificateDoc({ c, logo }: { c: CertificateData; logo: { data: Buffer; format: "png" } }) {
+  return (
+    <Document title={`Certificate of service ${c.year}: ${c.name}`} author="HOD Sanitation Hub">
+      <Page size="A4" orientation="landscape" style={cs.page}>
+        <View style={cs.frame}>
+          <View style={cs.inner}>
+            {/* eslint-disable-next-line jsx-a11y/alt-text -- react-pdf Image has no alt */}
+            <Image src={logo} style={cs.logo} />
+            <Text style={cs.kicker}>Household of David · Sanitation Unit</Text>
+            <Text style={cs.title}>Certificate of Service</Text>
+            <Text style={cs.presented}>This certificate is presented to</Text>
+            <Text style={cs.name}>{c.name}</Text>
+            <View style={cs.rule} />
+            <Text style={cs.body}>
+              in grateful recognition of faithful service as a volunteer of the Sanitation Unit during {c.year}, serving
+              God with excellence, one clean space at a time.
+            </Text>
+            <Text style={cs.hours}>{c.hours.toLocaleString("en-GB", { maximumFractionDigits: 1 })}</Text>
+            <Text style={cs.hoursLabel}>verified service hours · {c.meetings} meetings served</Text>
+            <View style={cs.footer}>
+              <Text style={cs.sig}>Unit Lead</Text>
+              <Text style={[cs.sig, { borderTopWidth: 0 }]}>Issued {c.issuedOn}</Text>
+              <Text style={cs.sig}>Pastor in charge</Text>
+            </View>
+          </View>
+        </View>
+      </Page>
+    </Document>
+  );
+}
+
+export async function renderCertificatePdf(c: CertificateData): Promise<Buffer> {
+  return renderToBuffer(<CertificateDoc c={c} logo={logoImage()} />);
+}
