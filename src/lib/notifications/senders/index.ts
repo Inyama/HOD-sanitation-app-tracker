@@ -52,7 +52,8 @@ export function getEmailSender(): EmailSender {
 }
 
 export function appUrl(): string {
-  return (process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000").replace(/\/$/, "");
+  // NEXT_PUBLIC_APP_URL wins; on Netlify, URL is the site's address.
+  return (process.env.NEXT_PUBLIC_APP_URL ?? process.env.URL ?? "http://localhost:3000").replace(/\/$/, "");
 }
 
 export async function sendBrandedEmail(

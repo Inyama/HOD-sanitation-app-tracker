@@ -232,3 +232,11 @@ Final wording of the privacy notice and consent text must be confirmed by qualif
 - **Announcements** can be pinned, edited and deleted, and optionally notify everyone in the app. In the notification center an announcement that was also sent as a notification shows once, with its read state.
 - **Notification bell.** Every role's bell now opens the notification center at `/member/notifications` (admins receive in-app notices too: tests, low-attendance flags). It previously pointed admins to Automation, which only Super Admins can open.
 - **Meeting change notices** (cancelled, rescheduled) and duty notices are filed under Reminders in the notification center; excuse decisions, corrections and escalations under System.
+
+## Hosting the demo on Netlify
+
+- `netlify.toml` builds with `npm run build` on Node 22; Netlify detects Next.js and applies its Next.js runtime (server pages and `/api/v1` become serverless functions, the proxy runs in front). Demo mode stays on.
+- Files read at runtime (the PDF logo and the sample sheets) are listed in `outputFileTracingIncludes` so they are bundled with the functions.
+- Email links use `NEXT_PUBLIC_APP_URL`, or Netlify's `URL` when that is not set.
+- **Demo data is in memory until Phase 8.** Every server instance starts from the same seed, so all reading is consistent, but changes visitors make (approvals, uploads, messages, check-ins) live only in the instance that served them and disappear when it is recycled (after idle time or a new deploy). Visitors can also undo their changes with "Restore the demo data". Shared, lasting data needs the Phase 8 database.
+- Sessions are signed cookies, so sign-in works across instances. In demo mode a built-in secret is used when `AUTH_SECRET` is not set; set `AUTH_SECRET` in Netlify (32+ characters) for anything beyond a demo.
