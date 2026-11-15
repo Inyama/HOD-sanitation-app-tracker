@@ -1,3 +1,4 @@
+import { RichText } from "@/components/ui/rich-text";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { ArrowRight, CalendarDays, Clock3, ListTodo, Megaphone, Package, Pin, ShieldCheck, Users } from "lucide-react";
@@ -162,7 +163,7 @@ export default async function VolunteerHome() {
                       </span>
                     )}
                   </p>
-                  <p className="mt-1 text-sm text-muted-foreground">{a.body}</p>
+                  <RichText text={a.body} className="mt-1 space-y-1 text-sm text-muted-foreground" />
                 </li>
               ))}
             </ul>

@@ -216,9 +216,14 @@ export async function buildDemoSummary(repo: Repository, at: DateTime) {
       .map((r) => r.userId),
     absentUnexcusedUserIds: records.filter((r) => r.meetingId === m.id && r.status === "ABSENT").map((r) => r.userId),
   }));
-  const sent = notifications.map((n) => n.dedupeKey.split(":").slice(0, 3).join(":"));
-  const due = dueNotifications(at, schedMeetings, users, sent);
+  // The rule preview lists everything due this minute; ones the scheduler already sent are counted separately.
+  const sent = new Set(notifications.map((n) => n.dedupeKey.split(":").slice(0, 3).join(":")));
+  const due = dueNotifications(at, schedMeetings, users, []);
   const dueByType = tally(due, (d) => d.type);
+  const sentByType = tally(
+    due.filter((d) => sent.has(d.key)),
+    (d) => d.type,
+  );
   const weekPlan = schedMeetings
     .flatMap((m) => reminderPlan(m).map((p) => ({ meeting: m.title, type: p.type, at: p.at, audience: p.audience })))
     .filter((p) => p.at >= at.startOf("minute") && p.at < at.plus({ days: 7 }))
@@ -278,7 +283,7 @@ export async function buildDemoSummary(repo: Repository, at: DateTime) {
     distribution,
     demoAccounts,
     next: nextInfo,
-    due: { total: due.length, byType: dueByType },
+    due: { total: due.length, byType: dueByType, sentByType },
     weekPlan,
     uploadPreview: preview
       ? {

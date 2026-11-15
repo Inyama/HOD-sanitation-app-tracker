@@ -1,3 +1,4 @@
+import { RichText } from "@/components/ui/rich-text";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { ArrowRight, CalendarCheck, CalendarDays, Flame, Megaphone, Pin, Sparkles, Timer } from "lucide-react";
@@ -179,7 +180,7 @@ export default async function MemberHome() {
                   }
                 />
                 <p className="font-semibold">{announcement.title}</p>
-                <p className="mt-1 text-sm text-muted-foreground">{announcement.body}</p>
+                <RichText text={announcement.body} className="mt-1 space-y-1 text-sm text-muted-foreground" />
               </GlassCard>
             )}
           </div>

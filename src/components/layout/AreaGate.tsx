@@ -1,5 +1,6 @@
 import "server-only";
 import { AppShell } from "./AppShell";
+import { SchedulerTick } from "./SchedulerTick";
 import { NAV, type ShellRole } from "./nav";
 import { requirePage } from "@/lib/auth/session";
 import { canAccessPath } from "@/lib/auth/permissions";
@@ -51,15 +52,18 @@ export async function AreaGate({ area, children }: { area: ShellRole; children: 
     }
   }
   return (
-    <AppShell
-      role={area}
-      user={{ name: user.name, email: user.email, detail, avatarUrl: user.avatarUrl }}
-      unread={unread}
-      hiddenNav={hiddenNav}
-      dateRange={dateRange}
-      badges={badges}
-    >
-      {children}
-    </AppShell>
+    <>
+      <SchedulerTick />
+      <AppShell
+        role={area}
+        user={{ name: user.name, email: user.email, detail, avatarUrl: user.avatarUrl }}
+        unread={unread}
+        hiddenNav={hiddenNav}
+        dateRange={dateRange}
+        badges={badges}
+      >
+        {children}
+      </AppShell>
+    </>
   );
 }

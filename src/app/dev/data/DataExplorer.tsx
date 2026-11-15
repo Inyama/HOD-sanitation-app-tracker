@@ -385,7 +385,15 @@ export function DataExplorer() {
                     {Object.entries(s.due.byType).map(([t, n]) => (
                       <li key={t} className="flex justify-between gap-3">
                         <span>{typeLabel[t] ?? t}</span>
-                        <span className="tabular font-semibold">{n} people</span>
+                        <span className="tabular font-semibold">
+                          {n} people
+                          {s.due.sentByType?.[t] ? (
+                            <span className="font-normal text-muted-foreground">
+                              {" "}
+                              ({s.due.sentByType[t]} already sent)
+                            </span>
+                          ) : null}
+                        </span>
                       </li>
                     ))}
                   </ul>

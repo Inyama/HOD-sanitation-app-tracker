@@ -6,6 +6,7 @@ import { ArrowLeft, Paperclip, Search } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { EmptyState } from "@/components/ui/empty-state";
+import { RichText } from "@/components/ui/rich-text";
 import { UserAvatar } from "@/components/ui/user-avatar";
 import { apiRequest } from "@/lib/api-client";
 import { cn } from "@/lib/utils";
@@ -125,7 +126,7 @@ export function Inbox({ items: initial }: { items: InboxRow[] }) {
                 </p>
               </div>
             </header>
-            <p className="leading-relaxed whitespace-pre-line">{current.body}</p>
+            <RichText text={current.body} />
             {current.attachments.length > 0 && (
               <ul className="space-y-2" aria-label="Attachments">
                 {current.attachments.map((a) => (

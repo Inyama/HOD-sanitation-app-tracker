@@ -42,8 +42,8 @@ export function TopBar({ role, user, unread = 0, dateRange, settingsHref }: TopB
     router.refresh();
   };
   const home = ROLE_META[role].home;
-  const notificationsHref =
-    role === "admin" ? "/admin/automation" : `${home === "/volunteer" ? "/member" : home}/notifications`;
+  // Everyone (admins included) reads their own notifications in the member notification center.
+  const notificationsHref = "/member/notifications";
   return (
     <header className="sticky top-0 z-30 border-b border-border bg-background/85 backdrop-blur-lg">
       <div className="demo-pad mx-auto flex h-16 max-w-[1280px] items-center gap-3 px-4 sm:px-6">

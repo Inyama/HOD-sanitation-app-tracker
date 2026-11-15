@@ -45,13 +45,21 @@ src/components/layout/    AppShell, Sidebar, BottomNav, TopBar, RoleBadge, DemoR
 src/components/attendance StatusChip, CheckInPanel
 src/components/volunteer/ DutyBoard, HoursPanel, IssueReporter, MarshalBoard, TeamView, RsvpButtons
 src/components/screens/   screens shared by member and volunteer (Attendance, Messages, Settings)
-src/components/admin/     DateRangePicker, MembersDirectory, ApprovalsBoard, RolesManager, AuditLogView, SettingsForm, dialogs
+src/components/admin/     DateRangePicker, MembersDirectory, ApprovalsBoard, RolesManager, AuditLogView, SettingsForm, dialogs,
+                          LiveBoard, UploadWizard, UploadMatchReview, MeetingsScreen, ExcuseQueue, CorrectionsBoard,
+                          RosterBoard, ReportsScreen, MessageComposer, AudienceBuilder, AutomationScreen, EmailPreview
 src/lib/time/             clock (simulated now), zone helpers, meeting schedule
 src/lib/attendance/       status, geofence, percentage, aggregation, badges, excuses
 src/lib/volunteer/        zones, duties, hours, marshal lists (pure); service, data, auto-hours (server)
-src/lib/admin/            range, dashboard, members, roles, audit, settings (pure); service, data, api (server)
+src/lib/admin/            range, dashboard, members, roles, audit, settings, meetings, uploads, corrections, roster,
+                          analytics (pure); service, data, api, ops-* (meetings, uploads, excuses, corrections,
+                          roster, live, reports, messages, automation) (server)
+src/lib/attendance/       ... plus close.ts (absentees when a window ends) and close-service (server)
+src/lib/reports/          member PDF, calendar, admin-reports (pure builders), render (CSV/XLSX), admin-pdf
 src/lib/matching/         normalize, similarity, columns, parse (CSV/XLSX), matchSheet, upload
-src/lib/notifications/    schedule (dueNotifications), templates, audience
+src/lib/notifications/    schedule (dueNotifications, dueNotificationsBetween), templates, audience, automation,
+                          escalation, richtext, message-templates (pure); runner (scheduler), deliver (delivery log,
+                          retries), context, message-delivery (server)
 src/lib/auth/             permissions, session cookie (claims, tokens), sign-in service, lockout, TOTP, passwords
 src/lib/notifications/senders/  EmailSender interface; console sender + demo outbox
 src/components/auth/      LoginForm, SignupForm, PasswordField, AuthShell
@@ -72,6 +80,7 @@ docs/                     DECISIONS.md, reference-screenshots/
 - `/dev/data`: seed totals, demo accounts and the rules at a simulated time (`GET /api/v1/demo/summary?at=`).
 - `/dev/outbox`: emails the app would have sent (verification, reset, new device). `POST /api/v1/demo/reset` restores the seed.
 - Demo admin invitation: `/accept-invite/demo-invite-2026`. Admin two-factor accepts any six digits in demo mode.
+- Notification scheduler: `POST /api/v1/cron/notifications` with `Authorization: Bearer $CRON_SECRET` (every minute in production). In demo mode the signed-in shell runs it at the simulated time (`POST /api/v1/demo/tick`); Automation has "Run the scheduler now".
 
 ## Demo facts
 

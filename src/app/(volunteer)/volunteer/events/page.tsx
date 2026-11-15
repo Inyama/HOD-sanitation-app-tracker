@@ -1,3 +1,4 @@
+import { RichText } from "@/components/ui/rich-text";
 import type { Metadata } from "next";
 import { CalendarPlus, MapPin, Megaphone, Pin, Users } from "lucide-react";
 import { requirePage } from "@/lib/auth/session";
@@ -61,7 +62,7 @@ export default async function EventsPage() {
                       </span>
                     )}
                   </p>
-                  <p className="text-sm">{a.body}</p>
+                  <RichText text={a.body} className="text-sm" />
                   <p className="text-xs text-muted-foreground">
                     {a.author} · {formatForViewer(a.createdAt, user.timezone)}
                   </p>

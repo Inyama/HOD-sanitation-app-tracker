@@ -4,6 +4,8 @@ import { repo } from "@/lib/repo";
 import { attendanceViews } from "@/lib/attendance/aggregate";
 import { fillMergeFields, firstName } from "@/lib/notifications/templates";
 import { now } from "@/lib/time/clock";
+import { withRecurringMeetings } from "@/lib/time/schedule";
+import { formatShort } from "@/lib/time/zone";
 
 export interface InboxItem {
   id: string;
@@ -26,7 +28,16 @@ export async function loadInbox(user: User): Promise<InboxItem[]> {
     r.meetings.list(),
   ]);
   const volunteers = await r.users.list({ where: { role: "VOLUNTEER" } });
-  const pct = attendanceViews(records, meetings, { approvedAt: user.approvedAt, now: now() }).overall.percent;
+  const at = now();
+  const all = withRecurringMeetings(meetings, at, 4);
+  const view = attendanceViews(records, all, { approvedAt: user.approvedAt, now: at }).overall;
+  const next = all.find((m) => m.status !== "CANCELLED" && m.startsAt > at.toUTC().toISO()!);
+  const values = {
+    first_name: firstName(user.name),
+    percentage: view.percent === null ? "–" : String(view.percent),
+    band: view.band.label,
+    next_meeting: next ? `${next.title}, ${formatShort(next.startsAt)}` : "the next meeting",
+  };
   const people = new Map([...users, ...volunteers].map((u) => [u.id, u.name]));
   return recipients
     .map((rec) => {
@@ -34,11 +45,8 @@ export async function loadInbox(user: User): Promise<InboxItem[]> {
       if (!m || !m.sentAt) return null;
       return {
         id: m.id,
-        subject: m.subject,
-        body: fillMergeFields(m.body, {
-          first_name: firstName(user.name),
-          percentage: pct === null ? "–" : String(pct),
-        }),
+        subject: fillMergeFields(m.subject, values),
+        body: fillMergeFields(m.body, values),
         from: people.get(m.senderId) ?? "Sanitation Unit",
         sentAt: m.sentAt,
         readAt: rec.readAt,
