@@ -12,18 +12,21 @@ function toBase64(file: File): Promise<string> {
   });
 }
 
-/** Browser upload of a proof, photo or issue picture to /api/v1/files. */
+/** A file's bytes as base64 without the data: prefix (sheet uploads). */
+export const readFileAsBase64 = toBase64;
+
+/** Browser upload of a proof, photo, issue picture or message attachment to /api/v1/files. */
 export async function uploadFile(
   file: File,
-  purpose: "excuse-proof" | "avatar" | "issue-photo" | "logo",
-): Promise<{ ok: true; url: string; name: string } | ApiFailure> {
+  purpose: "excuse-proof" | "avatar" | "issue-photo" | "logo" | "attachment",
+): Promise<{ ok: true; url: string; name: string; size?: number } | ApiFailure> {
   if (!ACCEPTED_UPLOADS.includes(file.type as (typeof ACCEPTED_UPLOADS)[number])) {
     return { ok: false, status: 415, code: "UNSUPPORTED_TYPE", message: "Choose a PNG, JPEG or WebP image, or a PDF." };
   }
   if (file.size > MAX_UPLOAD_BYTES)
     return { ok: false, status: 413, code: "TOO_LARGE", message: "Files must be 2 MB or smaller." };
   const data = await toBase64(file);
-  return apiRequest<{ url: string; name: string }>("/api/v1/files", {
+  return apiRequest<{ url: string; name: string; size: number }>("/api/v1/files", {
     body: { name: file.name, type: file.type, data, purpose },
   });
 }

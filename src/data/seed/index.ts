@@ -1,5 +1,7 @@
 import { DateTime } from "luxon";
 import type {
+  AttendanceDispute,
+  Delivery,
   Announcement,
   AppSettings,
   AttendanceRecord,
@@ -84,6 +86,8 @@ export interface SeedData {
   userBadges: UserBadge[];
   invites: Invite[];
   memberNotes: MemberNote[];
+  disputes: AttendanceDispute[];
+  deliveries: Delivery[];
   auditLogs: AuditLog[];
   settings: AppSettings;
   /** Demo account key to user id, e.g. demo.adebayo = "usr-adebayo". */
@@ -121,6 +125,36 @@ function slug(s: string) {
     .toLowerCase()
     .replace(/[^a-z]+/g, ".")
     .replace(/^\.|\.$/g, "");
+}
+
+/**
+ * Delivery log rows for the seeded emails (weekly summaries), so the Automation screen has a
+ * history. The oldest one is a permanent failure after five tries, to show how failures look.
+ */
+function buildDeliveries(notifications: Notification[]): Delivery[] {
+  const emails = notifications
+    .filter((n) => n.channel === "EMAIL")
+    .sort((a, b) => a.scheduledFor.localeCompare(b.scheduledFor) || a.id.localeCompare(b.id));
+  return emails.map((n, i) => {
+    const failed = i === 0;
+    return {
+      id: `dlv-${String(i + 1).padStart(4, "0")}`,
+      key: n.dedupeKey.replace(/:(IN_APP|EMAIL|PUSH)$/, ""),
+      userId: n.userId,
+      type: n.type,
+      channel: "EMAIL" as const,
+      status: failed ? ("FAILED" as const) : ("SENT" as const),
+      attempts: failed ? 5 : 1,
+      lastError: failed ? "550 Mailbox unavailable (the address bounced)" : null,
+      nextRetryAt: null,
+      createdAt: n.scheduledFor,
+      sentAt: failed ? null : n.sentAt,
+      subject: n.title,
+      messageId: null,
+      meetingId: null,
+      payload: null,
+    };
+  });
 }
 
 // ---------------------------------------------------------------------------
@@ -1282,6 +1316,28 @@ export function buildSeed(): SeedData {
   audit(0, demo.esther, "UPLOAD_PREVIEWED", "AttendanceUpload", "upl-2026-11-05");
   auditLogs.sort((a, b) => a.createdAt.localeCompare(b.createdAt));
 
+  // ---- An open dispute for Corrections ---------------------------------------------------
+  const disputed = records
+    .filter((r) => r.userId === demo.adebayo && r.status === "ABSENT")
+    .sort((a, b) => meetingById.get(b.meetingId)!.startsAt.localeCompare(meetingById.get(a.meetingId)!.startsAt))[0];
+  const disputes: AttendanceDispute[] = disputed
+    ? [
+        {
+          id: "dsp-01",
+          userId: demo.adebayo,
+          meetingId: disputed.meetingId,
+          claimed: "LATE",
+          message:
+            "I was there from about 9:45. My phone could not get a location inside the hall, and the marshal was busy at the gate.",
+          status: "OPEN",
+          resolvedById: null,
+          resolutionNote: null,
+          createdAt: iso(DateTime.fromISO(meetingById.get(disputed.meetingId)!.startsAt).plus({ days: 1, hours: 2 })),
+          resolvedAt: null,
+        },
+      ]
+    : [];
+
   // ---- Admin notes on member profiles -----------------------------------------------------
   const memberNotes: MemberNote[] = [
     {
@@ -1324,6 +1380,8 @@ export function buildSeed(): SeedData {
     userBadges,
     invites,
     memberNotes,
+    disputes,
+    deliveries: buildDeliveries(notifications),
     auditLogs,
     settings: { ...DEFAULT_SETTINGS },
     demo,

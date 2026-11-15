@@ -132,3 +132,71 @@ export function withRecurringMeetings(
   }
   return [...stored, ...generated].sort((a, b) => a.startsAt.localeCompare(b.startsAt));
 }
+
+/**
+ * Stored meetings plus the weekly Saturday and Thursday occurrences between `from` and `to`
+ * (past or future) that are not stored yet. A stored row with the same id always wins.
+ * Stored meetings are returned whatever their date; use `meetingsBetween` for only the range.
+ */
+export function recurringBetween(
+  stored: Meeting[],
+  from: DateTime,
+  to: DateTime,
+  rules: RecurringRule[] = [SATURDAY_RULE, THURSDAY_RULE],
+): Meeting[] {
+  const ids = new Set(stored.map((m) => m.id));
+  const venueId = stored.find((m) => m.venueId)?.venueId ?? null;
+  const generated: Meeting[] = [];
+  for (const rule of rules)
+    for (const start of occurrences(rule, from, to)) {
+      const id = meetingId(rule.type, start);
+      if (ids.has(id)) continue;
+      generated.push(generatedMeeting(rule, start, venueId));
+    }
+  return [...stored, ...generated].sort((a, b) => a.startsAt.localeCompare(b.startsAt));
+}
+
+/** Stored and weekly meetings that start between `from` and `to` (inclusive), oldest first. */
+export function meetingsBetween(
+  stored: Meeting[],
+  from: DateTime,
+  to: DateTime,
+  rules: RecurringRule[] = [SATURDAY_RULE, THURSDAY_RULE],
+): Meeting[] {
+  const a = from.toMillis();
+  const b = to.toMillis();
+  return recurringBetween(stored, from, to, rules).filter((m) => {
+    const t = DateTime.fromISO(m.startsAt).toMillis();
+    return t >= a && t <= b;
+  });
+}
+
+function generatedMeeting(rule: RecurringRule, start: DateTime, venueId: string | null): Meeting {
+  return {
+    id: meetingId(rule.type, start),
+    type: rule.type,
+    title: rule.title,
+    startsAt: start.toISO()!,
+    endsAt: start.plus({ minutes: rule.type === "SATURDAY" ? 120 : 90 }).toISO()!,
+    venueId,
+    method: rule.method,
+    graceMinutes: 0,
+    openBeforeMin: rule.openBeforeMin,
+    closeAfterMin: rule.closeAfterMin,
+    status: "SCHEDULED",
+    recurrenceRule: rruleFor(rule),
+    requireQr: false,
+    statusNote: null,
+  };
+}
+
+/** The weekly meeting an id like "mtg-2026-11-12-thu" stands for, or null. */
+export function recurringMeetingById(id: string, venueId: string | null = null): Meeting | null {
+  const m = /^mtg-(\d{4}-\d{2}-\d{2})-(sat|thu)$/.exec(id);
+  if (!m) return null;
+  const rule = m[2] === "sat" ? SATURDAY_RULE : THURSDAY_RULE;
+  const dayStart = DateTime.fromISO(m[1], { zone: MEETING_ZONE }).startOf("day");
+  if (!dayStart.isValid || dayStart.weekday !== rule.weekday) return null;
+  const start = dayStart.set({ hour: rule.hour, minute: rule.minute }).toUTC();
+  return generatedMeeting(rule, start, venueId);
+}

@@ -28,7 +28,7 @@ export default async function CheckInPage({ searchParams }: PageProps<"/member/c
           address: d.venue.address,
           lat: d.venue.lat,
           lng: d.venue.lng,
-          radiusM: d.venue.radiusM,
+          radiusM: d.nextGeo?.radiusM ?? d.venue.radiusM,
         }}
         maxAccuracyM={d.settings.maxAccuracyM}
         existing={rec ? { status: rec.status, checkedInAt: rec.checkedInAt } : null}

@@ -111,8 +111,25 @@ export interface RenderContext {
   nextMeeting?: string;
 }
 
-/** Render a notification for one recipient; times in their zone with Lagos time in brackets. */
-export function renderNotification(type: NotificationType, ctx: RenderContext): Template {
+/** Merge values for one recipient; times in their zone with Lagos time in brackets. */
+export function mergeValues(ctx: RenderContext): MergeValues {
+  return {
+    first_name: firstName(ctx.fullName),
+    meeting_name: ctx.meetingName,
+    local_start_time: ctx.startsAt ? formatForViewer(ctx.startsAt, ctx.timezone) : undefined,
+    venue_address: ctx.venueAddress,
+    checkin_link: ctx.checkinLink,
+    percentage: ctx.percentage === null || ctx.percentage === undefined ? "–" : String(ctx.percentage),
+    band: ctx.band,
+    next_meeting: ctx.nextMeeting,
+  };
+}
+
+/**
+ * Render a notification for one recipient; times in their zone with Lagos time in brackets.
+ * `template` replaces the built-in wording (the admin's override from the Automation screen).
+ */
+export function renderNotification(type: NotificationType, ctx: RenderContext, template?: Template): Template {
   const values: MergeValues = {
     first_name: firstName(ctx.fullName),
     meeting_name: ctx.meetingName,
@@ -123,7 +140,7 @@ export function renderNotification(type: NotificationType, ctx: RenderContext): 
     band: ctx.band,
     next_meeting: ctx.nextMeeting,
   };
-  const t = TEMPLATES[type];
+  const t = template ?? TEMPLATES[type];
   return {
     subject: fillMergeFields(t.subject, values),
     title: fillMergeFields(t.title, values),

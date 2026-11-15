@@ -166,6 +166,10 @@ export interface Meeting {
   requireQr: boolean;
   /** Added: note shown when cancelled or rescheduled. */
   statusNote: string | null;
+  /** Added: geofence radius for this meeting; null or missing uses the venue radius. */
+  radiusM?: number | null;
+  /** Added: when an admin last published the duty roster for this meeting. */
+  rosterPublishedAt?: string | null;
 }
 
 export interface AttendanceRecord {
@@ -199,6 +203,11 @@ export interface AttendanceUpload {
   rowsException: number;
   uploadedAt: string;
   rolledBackAt: string | null;
+  /**
+   * Added: the sheet records this upload replaced when it was confirmed, and the uploads they
+   * came from, so rolling it back restores the earlier sheet (spec 6.4 "rollback restores").
+   */
+  replaced?: { records: AttendanceRecord[]; uploadIds: string[] } | null;
 }
 
 export interface UploadRow {
@@ -211,6 +220,23 @@ export interface UploadRow {
   matchType: MatchType;
   similarity: number | null;
   resolution: string | null;
+}
+
+/** Added: a member saying an attendance record is wrong (spec 7.4 Corrections and disputes). */
+export type DisputeStatus = "OPEN" | "RESOLVED";
+
+export interface AttendanceDispute {
+  id: string;
+  userId: string;
+  meetingId: string;
+  /** The status the person believes is right. */
+  claimed: AttendanceStatus;
+  message: string;
+  status: DisputeStatus;
+  resolvedById: string | null;
+  resolutionNote: string | null;
+  createdAt: string;
+  resolvedAt: string | null;
 }
 
 export interface ExcuseRequest {
@@ -250,6 +276,61 @@ export interface Message {
   sentAt: string | null;
   /** Added: files attached to the message. */
   attachments?: { name: string; url: string; size: string }[];
+  /** Added: a scheduled message an admin cancelled before it went out. */
+  cancelledAt?: string | null;
+  /** Added: the template the message started from, if any. */
+  templateKey?: string | null;
+}
+
+/**
+ * Added: one attempt to deliver a notification or message on one channel (spec 8 delivery log).
+ * `key` is the dedupe key without the channel, so a reminder is sent once per person and type.
+ */
+export type DeliveryStatus = "SENT" | "FAILED" | "SKIPPED";
+
+export interface Delivery {
+  id: string;
+  key: string;
+  userId: string;
+  /** Notification type (SAT_DAY_BEFORE, MESSAGE, TEST, ...). */
+  type: string;
+  channel: Channel;
+  status: DeliveryStatus;
+  attempts: number;
+  lastError: string | null;
+  /** When a failed email is tried again (exponential back-off); null when done. */
+  nextRetryAt: string | null;
+  createdAt: string;
+  sentAt: string | null;
+  subject: string;
+  messageId: string | null;
+  meetingId: string | null;
+  /** Email content kept for retries. */
+  payload: {
+    preheader: string;
+    heading: string;
+    paragraphs: string[];
+    bodyHtml?: string;
+    button?: { label: string; url: string };
+  } | null;
+}
+
+/** Added: admin settings for one automated notification (spec 7.4 item 11). */
+export interface AutomationRule {
+  enabled: boolean;
+  /** Email and push can be switched off per rule; in-app is always on when the rule is enabled. */
+  email: boolean;
+  push: boolean;
+  /** Template overrides; null keeps the built-in wording. */
+  subject: string | null;
+  title: string | null;
+  body: string | null;
+}
+
+export interface AutomationSettings {
+  rules: Partial<Record<string, AutomationRule>>;
+  /** After this many absences in a row, the person's Team Lead is told. */
+  escalation: { enabled: boolean; absences: number };
 }
 
 export type AudienceSpec =
@@ -371,4 +452,6 @@ export interface AppSettings {
   locationRetentionMonths: number;
   demoMode: boolean;
   branding: { primary: string; accent: string; logoUrl: string };
+  /** Added: automated notification switches and templates (missing means the defaults). */
+  automation?: AutomationSettings;
 }

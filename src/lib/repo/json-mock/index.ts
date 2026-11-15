@@ -47,6 +47,8 @@ function fromSeed(seed: SeedData): State {
     "userBadges",
     "invites",
     "memberNotes",
+    "disputes",
+    "deliveries",
   ];
   const tables = {} as State["tables"];
   for (const k of keys) {
@@ -184,6 +186,8 @@ export function createJsonMockRepository(initial?: SeedData): Repository {
     userBadges: table("userBadges", "ub"),
     invites: table("invites", "inv"),
     memberNotes: table("memberNotes", "note"),
+    disputes: table("disputes", "dsp"),
+    deliveries: table("deliveries", "dlv"),
     audit,
     settings: {
       async get() {
@@ -220,7 +224,7 @@ const g = globalThis as unknown as { __hodRepo?: Repository; __hodRepoSchema?: n
  * Bump when tables are added or reshaped, so a running dev server rebuilds the store from the
  * seed after a hot reload instead of serving an instance without the new tables.
  */
-const SCHEMA_VERSION = 2;
+const SCHEMA_VERSION = 4;
 
 export function getRepository(): Repository {
   if (!g.__hodRepo || g.__hodRepoSchema !== SCHEMA_VERSION) {

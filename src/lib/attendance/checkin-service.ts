@@ -112,7 +112,7 @@ export async function performCheckIn(
       closeAfterMinutes: meeting.closeAfterMin,
     },
     reading: { lat: body.latitude, lng: body.longitude, accuracyM: body.accuracy },
-    venue: { lat: venue.lat, lng: venue.lng, radiusM: venue.radiusM },
+    venue: { lat: venue.lat, lng: venue.lng, radiusM: meeting.radiusM ?? venue.radiusM },
     maxAccuracyM: settings.maxAccuracyM,
   });
   if (!result.ok) return fail(result.reason, result.distanceM);

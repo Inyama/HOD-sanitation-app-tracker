@@ -8,6 +8,8 @@ export interface EmailContent {
   preheader: string;
   heading: string;
   paragraphs: string[];
+  /** Already-escaped body rows (rich-text messages); used instead of `paragraphs` in the HTML part. */
+  bodyHtml?: string;
   button?: { label: string; url: string };
   /** Small print under the button, e.g. "This link expires in 1 hour." */
   note?: string;
@@ -18,12 +20,14 @@ export interface EmailLayoutOptions {
   venueAddress?: string;
 }
 
+export const EMAIL_FONT = "'Plus Jakarta Sans', 'Segoe UI', Helvetica, Arial, sans-serif";
+
 const esc = (s: string) =>
   s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#39;");
 
 export function renderEmailHtml(c: EmailContent, o: EmailLayoutOptions): string {
   const address = o.venueAddress ?? "7 Surulere Industrial Road, Off Adeniyi Jones, Ikeja, Lagos, Nigeria";
-  const font = "'Plus Jakarta Sans', 'Segoe UI', Helvetica, Arial, sans-serif";
+  const font = EMAIL_FONT;
   const button = c.button
     ? `<tr><td style="padding:8px 0 4px"><a href="${esc(c.button.url)}" style="display:inline-block;background:#d4a437;background-image:linear-gradient(135deg,#f5d27a,#d4a437);color:#0a1a44;font-weight:700;text-decoration:none;padding:14px 26px;border-radius:999px;font-family:${font};font-size:15px">${esc(c.button.label)}</a></td></tr>`
     : "";
@@ -42,7 +46,7 @@ export function renderEmailHtml(c: EmailContent, o: EmailLayoutOptions): string 
 <tr><td style="padding:28px">
 <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
 <tr><td style="font-family:Georgia,'Times New Roman',serif;font-size:24px;font-weight:700;color:#0f172a;padding-bottom:12px">${esc(c.heading)}</td></tr>
-${c.paragraphs.map((p) => `<tr><td style="font-family:${font};font-size:15px;line-height:1.6;color:#0f172a;padding-bottom:12px">${esc(p)}</td></tr>`).join("\n")}
+${c.bodyHtml ?? c.paragraphs.map((p) => `<tr><td style="font-family:${font};font-size:15px;line-height:1.6;color:#0f172a;padding-bottom:12px">${esc(p)}</td></tr>`).join("\n")}
 ${button}
 ${note}
 </table></td></tr>

@@ -1,9 +1,11 @@
 import type {
   Announcement,
   AppSettings,
+  AttendanceDispute,
   AttendanceRecord,
   AttendanceUpload,
   AuditLog,
+  Delivery,
   Badge,
   DutyAssignment,
   EventRsvp,
@@ -89,6 +91,8 @@ export interface Repository {
   userBadges: Table<UserBadge>;
   invites: Table<Invite>;
   memberNotes: Table<MemberNote>;
+  disputes: Table<AttendanceDispute>;
+  deliveries: Table<Delivery>;
   audit: AppendOnly<AuditLog>;
   settings: SettingsStore;
   /** Run several writes as one unit; on error the json-mock restores the previous state. */

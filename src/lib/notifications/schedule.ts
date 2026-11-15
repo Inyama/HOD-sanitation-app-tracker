@@ -151,12 +151,22 @@ export function applyQuietHours(at: DateTime, zone: string, quiet: { start: stri
   return end.toUTC();
 }
 
-function channelsFor(type: NotificationType, prefs: NotifPrefs): Channel[] {
+/** Admin switches for one type (Automation screen). Missing means enabled on every channel. */
+export interface RuleSwitch {
+  enabled: boolean;
+  email: boolean;
+  push: boolean;
+}
+
+export type RuleLookup = (type: NotificationType) => RuleSwitch | undefined;
+
+function channelsFor(type: NotificationType, prefs: NotifPrefs, rule?: RuleSwitch): Channel[] {
   const spec = NOTIFICATION_TYPES[type];
   return spec.channels.filter((c) => {
-    if (c === "PUSH") return prefs.push; // push is opt-in
+    if (c === "PUSH") return prefs.push && (rule?.push ?? true); // push is opt-in
+    if (c === "EMAIL" && rule && !rule.email) return false; // the admin switched email off for this type
     if (spec.optional && c === "EMAIL") return prefs.email;
-    return true; // in-app always; email cannot be turned off for meeting reminders
+    return true; // in-app always; email cannot be turned off by members for meeting reminders
   });
 }
 
@@ -187,16 +197,35 @@ export function dueNotifications(
   meetings: SchedMeeting[],
   people: SchedPerson[],
   alreadySent: Iterable<string>,
+  rules?: RuleLookup,
+): DueNotification[] {
+  return dueNotificationsBetween(now.minus({ minutes: 1 }), now, meetings, people, alreadySent, rules);
+}
+
+/**
+ * Everything due after `from` and up to `to` (by whole minutes). The scheduler calls this with
+ * the time since its last run, so a missed minute or two is caught up exactly once.
+ */
+export function dueNotificationsBetween(
+  from: DateTime,
+  to: DateTime,
+  meetings: SchedMeeting[],
+  people: SchedPerson[],
+  alreadySent: Iterable<string>,
+  rules?: RuleLookup,
 ): DueNotification[] {
   const sent = new Set(alreadySent);
-  const nowMinute = minuteOf(now);
+  const fromMinute = minuteOf(from);
+  const toMinute = minuteOf(to);
+  const inWindow = (at: DateTime) => minuteOf(at) > fromMinute && minuteOf(at) <= toMinute;
   const active = people.filter((p) => p.status === "ACTIVE");
   const out: DueNotification[] = [];
+  const enabled = (type: NotificationType) => rules?.(type)?.enabled ?? true;
 
   const push = (p: SchedPerson, meetingId: string, type: NotificationType, at: DateTime) => {
     const key = dedupeKey(p.id, meetingId, type);
     if (sent.has(key)) return;
-    const channels = channelsFor(type, p.notifPrefs);
+    const channels = channelsFor(type, p.notifPrefs, rules?.(type));
     if (!channels.length) return;
     sent.add(key);
     out.push({
@@ -211,26 +240,35 @@ export function dueNotifications(
 
   for (const m of meetings) {
     for (const item of reminderPlan(m)) {
+      if (!enabled(item.type)) continue;
       const spec = NOTIFICATION_TYPES[item.type];
       // Fast skip: optional items can be deferred up to 8 hours by quiet hours.
-      const lag = nowMinute - minuteOf(item.at);
-      if (lag < 0 || lag > (spec.optional ? 8 * 60 : 0)) continue;
+      const planned = minuteOf(item.at);
+      if (planned > toMinute || planned + (spec.optional ? 8 * 60 : 0) <= fromMinute) continue;
       for (const p of audienceFor(item, m, active)) {
         if (spec.optional && !p.notifPrefs.nudges) continue;
         const at = spec.optional ? applyQuietHours(item.at, p.timezone, p.notifPrefs.quietHours) : item.at;
-        if (minuteOf(at) === nowMinute) push(p, m.id, item.type, at);
+        if (inWindow(at)) push(p, m.id, item.type, at);
       }
     }
   }
 
   // Weekly summary: Sunday 18:00 Lagos, every active person who wants it.
-  const lagosNow = now.setZone(MEETING_ZONE);
-  const sunday = lagosNow.startOf("week").plus({ days: 6 }).set({ hour: 18, minute: 0 }).toUTC();
-  const weekId = `week-${lagosNow.toFormat("kkkk-'W'WW")}`;
-  for (const p of active) {
-    if (!p.notifPrefs.weeklySummary) continue;
-    const at = applyQuietHours(sunday, p.timezone, p.notifPrefs.quietHours);
-    if (minuteOf(at) === nowMinute) push(p, weekId, "WEEKLY_SUMMARY", at);
+  if (enabled("WEEKLY_SUMMARY")) {
+    const weeks = new Map<string, DateTime>();
+    for (const t of [from, to]) {
+      const lagos = t.setZone(MEETING_ZONE);
+      weeks.set(
+        `week-${lagos.toFormat("kkkk-'W'WW")}`,
+        lagos.startOf("week").plus({ days: 6 }).set({ hour: 18, minute: 0 }).toUTC(),
+      );
+    }
+    for (const [weekId, sunday] of weeks)
+      for (const p of active) {
+        if (!p.notifPrefs.weeklySummary) continue;
+        const at = applyQuietHours(sunday, p.timezone, p.notifPrefs.quietHours);
+        if (inWindow(at)) push(p, weekId, "WEEKLY_SUMMARY", at);
+      }
   }
   return out;
 }
